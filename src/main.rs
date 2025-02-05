@@ -199,7 +199,7 @@ async fn build_test(pr: &PullRequest) -> Result<String, Box<dyn std::error::Erro
     let log_content = fs::read_to_string(log).unwrap();
     let snippet_url = create_snippet(&log_content).await?;
 
-    // TODO: Extract the Result and Log Output
+    // Extract the Result and Log Output
     // + git clone https://github.com/anchao/nuttx --branch 25020501 nuttx
     // + git clone https://github.com/anchao/nuttx-apps --branch 25020501 apps
     // NuttX Source: https://github.com/apache/nuttx/tree/fa059c19fad275324afdfec023d24a85827516e9
@@ -213,29 +213,16 @@ async fn build_test(pr: &PullRequest) -> Result<String, Box<dyn std::error::Erro
     // NuttX 10.4.0 fa059c19fa Feb  5 2025 19:25:45 risc-v rv-virt
     // nsh> ostest
     // ostest_main: Exiting with status 0
-    let log_content = log_content.replace("\n\n", "\n");
-    let log_index = log_content.len();
-    let log_index = log_content[0..log_index].rfind('\n').unwrap();
-    let log_index = log_content[0..log_index].rfind('\n').unwrap();
-    let log_index = log_content[0..log_index].rfind('\n').unwrap();
-    let log_index = log_content[0..log_index].rfind('\n').unwrap();
-    let log_index = log_content[0..log_index].rfind('\n').unwrap();
-    let log_index = log_content[0..log_index].rfind('\n').unwrap();
-    let log_index = log_content[0..log_index].rfind('\n').unwrap();
-    let log_index = log_content[0..log_index].rfind('\n').unwrap();
-    let log_index = log_content[0..log_index].rfind('\n').unwrap();
-    let log_index = log_content[0..log_index].rfind('\n').unwrap();
-    let log_index = log_content[0..log_index].rfind('\n').unwrap();
-    let log_index = log_content[0..log_index].rfind('\n').unwrap();
-    let log_index = log_content[0..log_index].rfind('\n').unwrap();
-    let log_index = log_content[0..log_index].rfind('\n').unwrap();
+    let log_extract = extract_log(&snippet_url).await?;
+    let log_content = log_extract.join("\n");
+    println!("log_content=\n{log_content}");
     let mut result = 
         if status.success() { format!("Build and Test Successful (rv-virt:{script})\n") }
         else { format!("Build and Test **FAILED** (rv-virt:{script})\n") };
     result.push_str(&snippet_url);
     result.push_str("\n```text");
-    result.push_str(&log_content[log_index..]);
-    result.push_str("```\n");
+    result.push_str(&log_content);
+    result.push_str("\n```\n");
     println!("result={result}");
     Ok(result)
 }
@@ -245,7 +232,7 @@ async fn build_test(pr: &PullRequest) -> Result<String, Box<dyn std::error::Erro
 async fn extract_log(url: &str) -> Result<Vec<String>, Box<dyn std::error::Error>> {
     // raw_url looks like "https://gitlab.com/lupyuen/nuttx-build-log/-/snippets/4799962/raw/"
     let parsed_url = Url::parse(url).unwrap();
-    let start_line = parsed_url.fragment().unwrap();  // "L85"
+    let start_line = parsed_url.fragment().unwrap_or("L1");  // "L85"
     let start_linenum = start_line[1..].parse::<usize>().unwrap();  // 85
     let mut parsed_url = parsed_url.clone();
     parsed_url.set_fragment(None); // "https://gitlab.com/lupyuen/nuttx-build-log/-/snippets/4799962"
