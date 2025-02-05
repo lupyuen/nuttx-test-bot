@@ -95,10 +95,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         // println!("Body: {body}");
 
         // Get the Head Ref and Head URL from PR
+        // TODO: Get PR Owner and Repo
         let pr: Value = serde_json::from_str(&body).unwrap();
+        let pr_id = &pr["number"].as_u64().unwrap();
         let head = &pr["head"];
         let head_ref = head["ref"].as_str().unwrap();  // "test-bot"
         let head_url = head["repo"]["html_url"].as_str().unwrap();  // https://github.com/lupyuen2/wip-nuttx
+        println!("pr_id={pr_id}");
         println!("head_ref={head_ref}");
         println!("head_url={head_url}");
 
