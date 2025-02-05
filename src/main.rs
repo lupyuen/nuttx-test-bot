@@ -55,6 +55,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .all(true)
         .send()
         .await?;
+
+    // For Every Notification...
     for n in notifications {
         // Handle only Mentions
         let reason = n.reason;  // "mention"
@@ -62,11 +64,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         if reason != "mention" { continue; }
 
         // TODO: Fetch the Mentioned Comment "@nuttxpr test rv-virt:knsh64"
-        let title = n.subject.title;  // "Testing our bot"
+        let owner = n.repository.owner.unwrap().login;
+        let repo = n.repository.name;
+        let pr_title = n.subject.title;  // "Testing our bot"
         let pr_url = n.subject.url.unwrap();  // https://api.github.com/repos/lupyuen2/wip-nuttx/pulls/88
         let thread_url = n.url;  // https://api.github.com/notifications/threads/14630615157
         let latest_comment_url = &n.subject.latest_comment_url.unwrap();  // https://api.github.com/repos/lupyuen2/wip-nuttx/issues/comments/2635685180
-        println!("title={title}");
+        println!("owner={owner}");
+        println!("repo={repo}");
+        println!("pr_title={pr_title}");
         println!("pr_url={pr_url}");
         println!("thread_url={thread_url}");
         println!("latest_comment_url={latest_comment_url}");
@@ -97,7 +103,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         // Get the Head Ref and Head URL from PR
         // TODO: Get PR Owner and Repo
         let pr: Value = serde_json::from_str(&body).unwrap();
-        let pr_id = &pr["number"].as_u64().unwrap();
+        let pr_id = pr["number"].as_u64().unwrap();
         let head = &pr["head"];
         let head_ref = head["ref"].as_str().unwrap();  // "test-bot"
         let head_url = head["repo"]["html_url"].as_str().unwrap();  // https://github.com/lupyuen2/wip-nuttx
@@ -121,7 +127,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let apps_hash = "HEAD";
         let apps_url = 
             if is_apps { head_url }
-            else { "https://github.com/apache/nuttx-apps" };
+            else { "aaaahttps://github.com/apache/nuttx-apps" };
         let apps_ref =
             if is_apps { head_ref }
             else { "master" };
@@ -145,31 +151,23 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let status = child.wait().unwrap();  // 0 if successful
         println!("status={status:?}");
 
-        // TODO: Extract the Log Output and Result
+        // TODO: Extract the Result and Log Output
         let result = 
             if status.success() { format!("Build and Test Successful (rv-virt:{script})") }
             else { format!("Build and Test FAILED (rv-virt:{script})") };
         println!("result={result}");
 
-        // Post as PR Comment
+        // Get the Handlers for GitHub Pull Requests and Issues
+        let pulls = octocrab.pulls(owner, repo);
+        let issues = octocrab.issues(&args.owner, &args.repo);
+
+        // Post the Result and Log Output as PR Comment
+        process_pr(&pulls, &issues, pr_id).await?;
+
         // TODO: Post to Mastodon
         // TODO: Allow only Specific People
         break;
     }
-
-    // // Get the Handlers for GitHub Pull Requests and Issues
-    // let pulls = octocrab.pulls(&args.owner, &args.repo);
-    // let issues = octocrab.issues(&args.owner, &args.repo);
-
-    // // Fetch the 20 Newest Pull Requests that are Open
-    // let pr_list = pulls
-    //     .list()
-    //     .state(params::State::Open)
-    //     .sort(params::pulls::Sort::Created)
-    //     .direction(params::Direction::Descending)
-    //     .per_page(20)
-    //     .send()
-    //     .await?;
 
     // // Every 5 Seconds: Process the next PR fetched
     // for pr in pr_list {
@@ -327,7 +325,6 @@ Thread:
   "url": "https://api.github.com/notifications/threads/14630615157",
   "subscription_url": "https://api.github.com/notifications/threads/14630615157/subscription"
 }
-
  */
 
 /// Validate the PR. Then post the results as a PR Comment
@@ -344,68 +341,6 @@ async fn process_pr(pulls: &PullRequestHandler<'_>, issues: &IssueHandler<'_>, p
         return Ok(());
     }
 
-    // Skip if PR contains Comments
-    if pr.comments.unwrap() > 0 {
-        info!("Skipping PR with comments: {}", pr_id);
-        return Ok(());
-    }
-
-    // Skip if PR Size is Unknown
-    let labels = pr.labels.unwrap();
-    if labels.is_empty() {
-        info!("Skipping Unknown PR Size: {}", pr_id);
-        return Ok(());
-    }
-
-    // Skip if PR Size is XS
-    let size_xs: Vec<Label> = labels
-        .into_iter()
-        .filter(|l| l.name == "Size: XS")
-        .collect();
-    if size_xs.len() > 0 {
-        info!("Skipping PR Size XS: {}", pr_id);
-        return Ok(());
-    }
-
-    // Fetch the PR Commits
-    // TODO: Change `pull_number` to `pr_commits`
-    let commits = pulls
-        .pull_number(pr_id)
-        .commits()
-        .await;
-    let commits = commits.unwrap().items;
-    let mut precheck = String::new();
-
-    // Check for Multiple Commits
-    // if commits.len() > 1 {
-    //     precheck.push_str(
-    //         &format!("__Squash The Commits:__ This PR contains {} Commits. Please Squash the Multiple Commits into a Single Commit.\n\n", commits.len())
-    //     );
-    // }
-
-    // Check for Empty Commit Message
-    let mut empty_message = false;
-    for commit in commits.iter() {
-        // Message should be "title\n\nbody"
-        let message = &commit.commit.message;
-        if message.find("\n").is_some() {
-        } else {
-            info!("Missing Commit Message: {:#?}", message);
-            empty_message = true;
-            break;
-        }
-    }
-    if empty_message {
-        precheck.push_str(
-            "__Fill In The Commit Message:__ This PR contains a Commit with an Empty Commit Message. Please fill in the Commit Message with the PR Summary.\n\n"
-        );
-    }
-
-    // Get the PR Body
-    let body = pr.body.unwrap_or("".to_string());
-    info!("PR Body: {:#?}", body);
-
-    // Retry Gemini API up to 3 times, by checking the PR Reactions.
     // Fetch the PR Reactions. Quit if Both Reactions are set.
     let reactions = get_reactions(issues, pr_id).await?;
     if reactions.0.is_some() && reactions.1.is_some() {
@@ -418,12 +353,11 @@ async fn process_pr(pulls: &PullRequestHandler<'_>, issues: &IssueHandler<'_>, p
 
     // Header for PR Comment
     let header = "[**\\[Experimental Bot, please feedback here\\]**](https://github.com/search?q=repo%3Aapache%2Fnuttx+13552&type=issues)";
-    let response_text = "";
+    let response_text = "TODO: response_text";
 
     // Compose the PR Comment
     let comment_text =
         header.to_string() + "\n\n" +
-        &precheck + "\n\n" +
         &response_text;
 
     // Post the PR Comment
