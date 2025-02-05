@@ -8,7 +8,7 @@
 //!   - Allow only Specific People
 
 use std::{
-    fs, process::Command, thread::sleep, time::Duration
+    fs, ops::Index, process::Command, thread::sleep, time::Duration
 };
 use clap::Parser;
 use log::info;
@@ -147,11 +147,30 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let log_content = fs::read_to_string(log).unwrap();
         let snippet_url = create_snippet(&log_content).await?;
 
-        // TODO: Extract the Result and Log Output
+        // Extract the Result and Log Output
+        let log_content = log_content.replace("\n\n", "\n");
+        let log_index = log_content.len();
+        let log_index = log_content[0..log_index].rfind('\n').unwrap();
+        let log_index = log_content[0..log_index].rfind('\n').unwrap();
+        let log_index = log_content[0..log_index].rfind('\n').unwrap();
+        let log_index = log_content[0..log_index].rfind('\n').unwrap();
+        let log_index = log_content[0..log_index].rfind('\n').unwrap();
+        let log_index = log_content[0..log_index].rfind('\n').unwrap();
+        let log_index = log_content[0..log_index].rfind('\n').unwrap();
+        let log_index = log_content[0..log_index].rfind('\n').unwrap();
+        let log_index = log_content[0..log_index].rfind('\n').unwrap();
+        let log_index = log_content[0..log_index].rfind('\n').unwrap();
+        let log_index = log_content[0..log_index].rfind('\n').unwrap();
+        let log_index = log_content[0..log_index].rfind('\n').unwrap();
+        let log_index = log_content[0..log_index].rfind('\n').unwrap();
+        let log_index = log_content[0..log_index].rfind('\n').unwrap();
         let mut result = 
             if status.success() { format!("Build and Test Successful (rv-virt:{script})\n") }
             else { format!("Build and Test **FAILED** (rv-virt:{script})\n") };
         result.push_str(&snippet_url);
+        result.push_str("\n```text");
+        result.push_str(&log_content[log_index..]);
+        result.push_str("```\n");
         println!("result={result}");
 
         // Get the Handlers for GitHub Pull Requests and Issues
