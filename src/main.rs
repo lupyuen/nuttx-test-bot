@@ -8,7 +8,7 @@
 //!   - Allow only Specific People
 
 use std::{
-    fs, ops::Index, process::Command, thread::sleep, time::Duration
+    fs, process::Command, thread::sleep, time::Duration
 };
 use clap::Parser;
 use log::info;
@@ -30,7 +30,6 @@ struct Args {
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Init the Logger and Command-Line Args
     env_logger::init();
-    let args = Args::parse();
 
     // Init the GitHub Client
     let token = std::env::var("GITHUB_TOKEN")
@@ -93,7 +92,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         // println!("Body: {body}");
 
         // Get the Head Ref and Head URL from PR
-        // TODO: Get PR Owner and Repo
         let pr: Value = serde_json::from_str(&body).unwrap();
         let pr_id = pr["number"].as_u64().unwrap();
         let head = &pr["head"];
@@ -147,7 +145,20 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let log_content = fs::read_to_string(log).unwrap();
         let snippet_url = create_snippet(&log_content).await?;
 
-        // Extract the Result and Log Output
+        // TODO: Extract the Result and Log Output
+        // + git clone https://github.com/anchao/nuttx --branch 25020501 nuttx
+        // + git clone https://github.com/anchao/nuttx-apps --branch 25020501 apps
+        // NuttX Source: https://github.com/apache/nuttx/tree/fa059c19fad275324afdfec023d24a85827516e9
+        // NuttX Apps: https://github.com/apache/nuttx-apps/tree/6d0afa6c9b8d4ecb896f9aa177dbdfcd40218f48
+        // + tools/configure.sh rv-virt:knsh64
+        // + spawn qemu-system-riscv64 -semihosting -M virt,aclint=on -cpu rv64 -kernel nuttx -nographic
+        // + qemu-system-riscv64 --version
+        // QEMU emulator version 9.2.0
+        // OpenSBI v1.5.1
+        // nsh> uname -a
+        // NuttX 10.4.0 fa059c19fa Feb  5 2025 19:25:45 risc-v rv-virt
+        // nsh> ostest
+        // ostest_main: Exiting with status 0
         let log_content = log_content.replace("\n\n", "\n");
         let log_index = log_content.len();
         let log_index = log_content[0..log_index].rfind('\n').unwrap();
@@ -197,152 +208,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-/*
-Notification { id: NotificationId(14630615157), repository: Repository { id: RepositoryId(566669181), node_id: Some("R_kgDOIcavfQ"), name: "wip-nuttx", full_name: Some("lupyuen2/wip-nuttx"), owner: Some(Author { login: "lupyuen2", id: UserId(88765682), node_id: "MDEyOk9yZ2FuaXphdGlvbjg4NzY1Njgy", avatar_url: Url { scheme: "https", cannot_be_a_base: false, username: "", password: None, host: Some(Domain("avatars.githubusercontent.com")), port: None, path: "/u/88765682", query: Some("v=4"), fragment: None
-            }, gravatar_id: "", url: Url { scheme: "https", cannot_be_a_base: false, username: "", password: None, host: Some(Domain("api.github.com")), port: None, path: "/users/lupyuen2", query: None, fragment: None
-            }, html_url: Url { scheme: "https", cannot_be_a_base: false, username: "", password: None, host: Some(Domain("github.com")), port: None, path: "/lupyuen2", query: None, fragment: None
-            }, followers_url: Url { scheme: "https", cannot_be_a_base: false, username: "", password: None, host: Some(Domain("api.github.com")), port: None, path: "/users/lupyuen2/followers", query: None, fragment: None
-            }, following_url: Url { scheme: "https", cannot_be_a_base: false, username: "", password: None, host: Some(Domain("api.github.com")), port: None, path: "/users/lupyuen2/following%7B/other_user%7D", query: None, fragment: None
-            }, gists_url: Url { scheme: "https", cannot_be_a_base: false, username: "", password: None, host: Some(Domain("api.github.com")), port: None, path: "/users/lupyuen2/gists%7B/gist_id%7D", query: None, fragment: None
-            }, starred_url: Url { scheme: "https", cannot_be_a_base: false, username: "", password: None, host: Some(Domain("api.github.com")), port: None, path: "/users/lupyuen2/starred%7B/owner%7D%7B/repo%7D", query: None, fragment: None
-            }, subscriptions_url: Url { scheme: "https", cannot_be_a_base: false, username: "", password: None, host: Some(Domain("api.github.com")), port: None, path: "/users/lupyuen2/subscriptions", query: None, fragment: None
-            }, organizations_url: Url { scheme: "https", cannot_be_a_base: false, username: "", password: None, host: Some(Domain("api.github.com")), port: None, path: "/users/lupyuen2/orgs", query: None, fragment: None
-            }, repos_url: Url { scheme: "https", cannot_be_a_base: false, username: "", password: None, host: Some(Domain("api.github.com")), port: None, path: "/users/lupyuen2/repos", query: None, fragment: None
-            }, events_url: Url { scheme: "https", cannot_be_a_base: false, username: "", password: None, host: Some(Domain("api.github.com")), port: None, path: "/users/lupyuen2/events%7B/privacy%7D", query: None, fragment: None
-            }, received_events_url: Url { scheme: "https", cannot_be_a_base: false, username: "", password: None, host: Some(Domain("api.github.com")), port: None, path: "/users/lupyuen2/received_events", query: None, fragment: None
-            }, type: "Organization", site_admin: false, patch_url: None, email: None
-        }), private: Some(false), html_url: Some(Url { scheme: "https", cannot_be_a_base: false, username: "", password: None, host: Some(Domain("github.com")), port: None, path: "/lupyuen2/wip-nuttx", query: None, fragment: None
-        }), description: Some("(Work-in-Progress for SG2000, Ox64, Star64 and PinePhone) Apache NuttX is a mature, real-time embedded operating system (RTOS)"), fork: Some(true), url: Url { scheme: "https", cannot_be_a_base: false, username: "", password: None, host: Some(Domain("api.github.com")), port: None, path: "/repos/lupyuen2/wip-nuttx", query: None, fragment: None
-        }, archive_url: Some(Url { scheme: "https", cannot_be_a_base: false, username: "", password: None, host: Some(Domain("api.github.com")), port: None, path: "/repos/lupyuen2/wip-nuttx/%7Barchive_format%7D%7B/ref%7D", query: None, fragment: None
-        }), assignees_url: Some(Url { scheme: "https", cannot_be_a_base: false, username: "", password: None, host: Some(Domain("api.github.com")), port: None, path: "/repos/lupyuen2/wip-nuttx/assignees%7B/user%7D", query: None, fragment: None
-        }), blobs_url: Some(Url { scheme: "https", cannot_be_a_base: false, username: "", password: None, host: Some(Domain("api.github.com")), port: None, path: "/repos/lupyuen2/wip-nuttx/git/blobs%7B/sha%7D", query: None, fragment: None
-        }), branches_url: Some(Url { scheme: "https", cannot_be_a_base: false, username: "", password: None, host: Some(Domain("api.github.com")), port: None, path: "/repos/lupyuen2/wip-nuttx/branches%7B/branch%7D", query: None, fragment: None
-        }), collaborators_url: Some(Url { scheme: "https", cannot_be_a_base: false, username: "", password: None, host: Some(Domain("api.github.com")), port: None, path: "/repos/lupyuen2/wip-nuttx/collaborators%7B/collaborator%7D", query: None, fragment: None
-        }), comments_url: Some(Url { scheme: "https", cannot_be_a_base: false, username: "", password: None, host: Some(Domain("api.github.com")), port: None, path: "/repos/lupyuen2/wip-nuttx/comments%7B/number%7D", query: None, fragment: None
-        }), commits_url: Some(Url { scheme: "https", cannot_be_a_base: false, username: "", password: None, host: Some(Domain("api.github.com")), port: None, path: "/repos/lupyuen2/wip-nuttx/commits%7B/sha%7D", query: None, fragment: None
-        }), compare_url: Some(Url { scheme: "https", cannot_be_a_base: false, username: "", password: None, host: Some(Domain("api.github.com")), port: None, path: "/repos/lupyuen2/wip-nuttx/compare/%7Bbase%7D...%7Bhead%7D", query: None, fragment: None
-        }), contents_url: Some(Url { scheme: "https", cannot_be_a_base: false, username: "", password: None, host: Some(Domain("api.github.com")), port: None, path: "/repos/lupyuen2/wip-nuttx/contents/%7B+path%7D", query: None, fragment: None
-        }), contributors_url: Some(Url { scheme: "https", cannot_be_a_base: false, username: "", password: None, host: Some(Domain("api.github.com")), port: None, path: "/repos/lupyuen2/wip-nuttx/contributors", query: None, fragment: None
-        }), deployments_url: Some(Url { scheme: "https", cannot_be_a_base: false, username: "", password: None, host: Some(Domain("api.github.com")), port: None, path: "/repos/lupyuen2/wip-nuttx/deployments", query: None, fragment: None
-        }), downloads_url: Some(Url { scheme: "https", cannot_be_a_base: false, username: "", password: None, host: Some(Domain("api.github.com")), port: None, path: "/repos/lupyuen2/wip-nuttx/downloads", query: None, fragment: None
-        }), events_url: Some(Url { scheme: "https", cannot_be_a_base: false, username: "", password: None, host: Some(Domain("api.github.com")), port: None, path: "/repos/lupyuen2/wip-nuttx/events", query: None, fragment: None
-        }), forks_url: Some(Url { scheme: "https", cannot_be_a_base: false, username: "", password: None, host: Some(Domain("api.github.com")), port: None, path: "/repos/lupyuen2/wip-nuttx/forks", query: None, fragment: None
-        }), git_commits_url: Some(Url { scheme: "https", cannot_be_a_base: false, username: "", password: None, host: Some(Domain("api.github.com")), port: None, path: "/repos/lupyuen2/wip-nuttx/git/commits%7B/sha%7D", query: None, fragment: None
-        }), git_refs_url: Some(Url { scheme: "https", cannot_be_a_base: false, username: "", password: None, host: Some(Domain("api.github.com")), port: None, path: "/repos/lupyuen2/wip-nuttx/git/refs%7B/sha%7D", query: None, fragment: None
-        }), git_tags_url: Some(Url { scheme: "https", cannot_be_a_base: false, username: "", password: None, host: Some(Domain("api.github.com")), port: None, path: "/repos/lupyuen2/wip-nuttx/git/tags%7B/sha%7D", query: None, fragment: None
-        }), git_url: None, issue_comment_url: Some(Url { scheme: "https", cannot_be_a_base: false, username: "", password: None, host: Some(Domain("api.github.com")), port: None, path: "/repos/lupyuen2/wip-nuttx/issues/comments%7B/number%7D", query: None, fragment: None
-        }), issue_events_url: Some(Url { scheme: "https", cannot_be_a_base: false, username: "", password: None, host: Some(Domain("api.github.com")), port: None, path: "/repos/lupyuen2/wip-nuttx/issues/events%7B/number%7D", query: None, fragment: None
-        }), issues_url: Some(Url { scheme: "https", cannot_be_a_base: false, username: "", password: None, host: Some(Domain("api.github.com")), port: None, path: "/repos/lupyuen2/wip-nuttx/issues%7B/number%7D", query: None, fragment: None
-        }), keys_url: Some(Url { scheme: "https", cannot_be_a_base: false, username: "", password: None, host: Some(Domain("api.github.com")), port: None, path: "/repos/lupyuen2/wip-nuttx/keys%7B/key_id%7D", query: None, fragment: None
-        }), labels_url: Some(Url { scheme: "https", cannot_be_a_base: false, username: "", password: None, host: Some(Domain("api.github.com")), port: None, path: "/repos/lupyuen2/wip-nuttx/labels%7B/name%7D", query: None, fragment: None
-        }), languages_url: Some(Url { scheme: "https", cannot_be_a_base: false, username: "", password: None, host: Some(Domain("api.github.com")), port: None, path: "/repos/lupyuen2/wip-nuttx/languages", query: None, fragment: None
-        }), merges_url: Some(Url { scheme: "https", cannot_be_a_base: false, username: "", password: None, host: Some(Domain("api.github.com")), port: None, path: "/repos/lupyuen2/wip-nuttx/merges", query: None, fragment: None
-        }), milestones_url: Some(Url { scheme: "https", cannot_be_a_base: false, username: "", password: None, host: Some(Domain("api.github.com")), port: None, path: "/repos/lupyuen2/wip-nuttx/milestones%7B/number%7D", query: None, fragment: None
-        }), notifications_url: Some(Url { scheme: "https", cannot_be_a_base: false, username: "", password: None, host: Some(Domain("api.github.com")), port: None, path: "/repos/lupyuen2/wip-nuttx/notifications%7B", query: Some("since,all,participating}"), fragment: None
-        }), pulls_url: Some(Url { scheme: "https", cannot_be_a_base: false, username: "", password: None, host: Some(Domain("api.github.com")), port: None, path: "/repos/lupyuen2/wip-nuttx/pulls%7B/number%7D", query: None, fragment: None
-        }), releases_url: Some(Url { scheme: "https", cannot_be_a_base: false, username: "", password: None, host: Some(Domain("api.github.com")), port: None, path: "/repos/lupyuen2/wip-nuttx/releases%7B/id%7D", query: None, fragment: None
-        }), ssh_url: None, stargazers_url: Some(Url { scheme: "https", cannot_be_a_base: false, username: "", password: None, host: Some(Domain("api.github.com")), port: None, path: "/repos/lupyuen2/wip-nuttx/stargazers", query: None, fragment: None
-        }), statuses_url: Some(Url { scheme: "https", cannot_be_a_base: false, username: "", password: None, host: Some(Domain("api.github.com")), port: None, path: "/repos/lupyuen2/wip-nuttx/statuses/%7Bsha%7D", query: None, fragment: None
-        }), subscribers_url: Some(Url { scheme: "https", cannot_be_a_base: false, username: "", password: None, host: Some(Domain("api.github.com")), port: None, path: "/repos/lupyuen2/wip-nuttx/subscribers", query: None, fragment: None
-        }), subscription_url: Some(Url { scheme: "https", cannot_be_a_base: false, username: "", password: None, host: Some(Domain("api.github.com")), port: None, path: "/repos/lupyuen2/wip-nuttx/subscription", query: None, fragment: None
-        }), tags_url: Some(Url { scheme: "https", cannot_be_a_base: false, username: "", password: None, host: Some(Domain("api.github.com")), port: None, path: "/repos/lupyuen2/wip-nuttx/tags", query: None, fragment: None
-        }), teams_url: Some(Url { scheme: "https", cannot_be_a_base: false, username: "", password: None, host: Some(Domain("api.github.com")), port: None, path: "/repos/lupyuen2/wip-nuttx/teams", query: None, fragment: None
-        }), trees_url: Some(Url { scheme: "https", cannot_be_a_base: false, username: "", password: None, host: Some(Domain("api.github.com")), port: None, path: "/repos/lupyuen2/wip-nuttx/git/trees%7B/sha%7D", query: None, fragment: None
-        }), clone_url: None, mirror_url: None, hooks_url: Some(Url { scheme: "https", cannot_be_a_base: false, username: "", password: None, host: Some(Domain("api.github.com")), port: None, path: "/repos/lupyuen2/wip-nuttx/hooks", query: None, fragment: None
-        }), svn_url: None, homepage: None, language: None, forks_count: None, stargazers_count: None, watchers_count: None, size: None, default_branch: None, open_issues_count: None, is_template: None, topics: None, has_issues: None, has_projects: None, has_wiki: None, has_pages: None, has_downloads: None, archived: None, disabled: None, visibility: None, pushed_at: None, created_at: None, updated_at: None, permissions: None, allow_rebase_merge: None, template_repository: None, allow_squash_merge: None, allow_merge_commit: None, allow_update_branch: None, allow_forking: None, subscribers_count: None, network_count: None, license: None, allow_auto_merge: None, delete_branch_on_merge: None, parent: None, source: None
-    }, subject: Subject { title: "Testing our bot", url: Some(Url { scheme: "https", cannot_be_a_base: false, username: "", password: None, host: Some(Domain("api.github.com")), port: None, path: "/repos/lupyuen2/wip-nuttx/pulls/88", query: None, fragment: None
-        }), latest_comment_url: Some(Url { scheme: "https", cannot_be_a_base: false, username: "", password: None, host: Some(Domain("api.github.com")), port: None, path: "/repos/lupyuen2/wip-nuttx/issues/comments/2635666191", query: None, fragment: None
-        }), type: "PullRequest"
-    }, reason: "mention", unread: true, updated_at: 2025-02-05T04: 17: 47Z, last_read_at: None, url: Url { scheme: "https", cannot_be_a_base: false, username: "", password: None, host: Some(Domain("api.github.com")), port: None, path: "/notifications/threads/14630615157", query: None, fragment: None
-    }
-}
-
-Thread:
-{
-  "id": "14630615157",
-  "unread": true,
-  "reason": "mention",
-  "updated_at": "2025-02-05T04:17:47Z",
-  "last_read_at": null,
-  "subject": {
-    "title": "Testing our bot",
-    "url": "https://api.github.com/repos/lupyuen2/wip-nuttx/pulls/88",
-    "latest_comment_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/issues/comments/2635666191",
-    "type": "PullRequest"
-  },
-  "repository": {
-    "id": 566669181,
-    "node_id": "R_kgDOIcavfQ",
-    "name": "wip-nuttx",
-    "full_name": "lupyuen2/wip-nuttx",
-    "private": false,
-    "owner": {
-      "login": "lupyuen2",
-      "id": 88765682,
-      "node_id": "MDEyOk9yZ2FuaXphdGlvbjg4NzY1Njgy",
-      "avatar_url": "https://avatars.githubusercontent.com/u/88765682?v=4",
-      "gravatar_id": "",
-      "url": "https://api.github.com/users/lupyuen2",
-      "html_url": "https://github.com/lupyuen2",
-      "followers_url": "https://api.github.com/users/lupyuen2/followers",
-      "following_url": "https://api.github.com/users/lupyuen2/following{/other_user}",
-      "gists_url": "https://api.github.com/users/lupyuen2/gists{/gist_id}",
-      "starred_url": "https://api.github.com/users/lupyuen2/starred{/owner}{/repo}",
-      "subscriptions_url": "https://api.github.com/users/lupyuen2/subscriptions",
-      "organizations_url": "https://api.github.com/users/lupyuen2/orgs",
-      "repos_url": "https://api.github.com/users/lupyuen2/repos",
-      "events_url": "https://api.github.com/users/lupyuen2/events{/privacy}",
-      "received_events_url": "https://api.github.com/users/lupyuen2/received_events",
-      "type": "Organization",
-      "user_view_type": "public",
-      "site_admin": false
-    },
-    "html_url": "https://github.com/lupyuen2/wip-nuttx",
-    "description": "(Work-in-Progress for SG2000, Ox64, Star64 and PinePhone) Apache NuttX is a mature, real-time embedded operating system (RTOS)",
-    "fork": true,
-    "url": "https://api.github.com/repos/lupyuen2/wip-nuttx",
-    "forks_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/forks",
-    "keys_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/keys{/key_id}",
-    "collaborators_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/collaborators{/collaborator}",
-    "teams_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/teams",
-    "hooks_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/hooks",
-    "issue_events_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/issues/events{/number}",
-    "events_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/events",
-    "assignees_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/assignees{/user}",
-    "branches_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/branches{/branch}",
-    "tags_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/tags",
-    "blobs_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/git/blobs{/sha}",
-    "git_tags_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/git/tags{/sha}",
-    "git_refs_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/git/refs{/sha}",
-    "trees_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/git/trees{/sha}",
-    "statuses_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/statuses/{sha}",
-    "languages_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/languages",
-    "stargazers_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/stargazers",
-    "contributors_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/contributors",
-    "subscribers_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/subscribers",
-    "subscription_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/subscription",
-    "commits_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/commits{/sha}",
-    "git_commits_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/git/commits{/sha}",
-    "comments_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/comments{/number}",
-    "issue_comment_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/issues/comments{/number}",
-    "contents_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/contents/{+path}",
-    "compare_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/compare/{base}...{head}",
-    "merges_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/merges",
-    "archive_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/{archive_format}{/ref}",
-    "downloads_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/downloads",
-    "issues_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/issues{/number}",
-    "pulls_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/pulls{/number}",
-    "milestones_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/milestones{/number}",
-    "notifications_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/notifications{?since,all,participating}",
-    "labels_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/labels{/name}",
-    "releases_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/releases{/id}",
-    "deployments_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/deployments"
-  },
-  "url": "https://api.github.com/notifications/threads/14630615157",
-  "subscription_url": "https://api.github.com/notifications/threads/14630615157/subscription"
-}
- */
-
 /// Validate the PR. Then post the results as a PR Comment
 async fn process_pr(pulls: &PullRequestHandler<'_>, issues: &IssueHandler<'_>, pr_id: u64, response_text: &str) -> Result<(), Box<dyn std::error::Error>> {
     // Fetch the PR
@@ -376,10 +241,7 @@ async fn process_pr(pulls: &PullRequestHandler<'_>, issues: &IssueHandler<'_>, p
         response_text;
 
     // Post the PR Comment
-    let comment = issues
-        .create_comment(pr_id, comment_text)
-        .await?;
-    // info!("PR Comment: {:#?}", comment);       
+    issues.create_comment(pr_id, comment_text).await?;
 
     // If successful, delete the PR Reactions
     delete_reactions(issues, pr_id).await?;
