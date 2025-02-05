@@ -11,6 +11,7 @@ keywords = ["nuttx", "rtos", "ci"]
 categories = ["command-line-utilities"]
 
 [dependencies]
+bit-vec = "0.8.0"
 clap = { version = "4.5.18", features = ["derive"] }
 env_logger = "0.11.5"
 log = "0.4.22"
@@ -19,3 +20,4 @@ regex = "1.11.1"
 reqwest = "0.12.9"
 serde_json = "1.0.133"
 tokio = { version = "1.40.0", features = ["full"] }
+url = "2.5.4"

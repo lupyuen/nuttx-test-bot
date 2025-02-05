@@ -10,6 +10,7 @@
 use std::{
     fs, process::Command, thread::sleep, time::Duration
 };
+use bit_vec::BitVec;
 use clap::Parser;
 use log::info;
 use octocrab::{
@@ -19,6 +20,7 @@ use octocrab::{
 };
 use regex::Regex;
 use serde_json::Value;
+use url::Url;
 
 /// Command-Line Arguments
 #[derive(Parser, Debug)]
@@ -236,6 +238,86 @@ async fn build_test(pr: &PullRequest) -> Result<String, Box<dyn std::error::Erro
     result.push_str("```\n");
     println!("result={result}");
     Ok(result)
+}
+
+/// Extract the important bits from the Build / Test Log.
+/// url looks like "https://gitlab.com/lupyuen/nuttx-build-log/-/snippets/4799962#L85"
+async fn extract_log(url: &str) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+    // raw_url looks like "https://gitlab.com/lupyuen/nuttx-build-log/-/snippets/4799962/raw/"
+    let parsed_url = Url::parse(url).unwrap();
+    let start_line = parsed_url.fragment().unwrap();  // "L85"
+    let start_linenum = start_line[1..].parse::<usize>().unwrap();  // 85
+    let mut parsed_url = parsed_url.clone();
+    parsed_url.set_fragment(None); // "https://gitlab.com/lupyuen/nuttx-build-log/-/snippets/4799962"
+    let base_url = parsed_url.as_str();  
+    let raw_url = format!("{base_url}/raw/");
+    println!("raw_url={raw_url}");
+
+    // output_line[i] is True if Line #i should be extracted for output (starts at i=1)
+    let log = reqwest::get(raw_url).await?
+        .text().await?;
+    // println!("log=\n{log}");
+    let lines = &log.split('\n').collect::<Vec<_>>();
+    let mut output_line = BitVec::from_elem(lines.len() + 1, false);
+
+    // Extract Log from Start Line Number till "===== Error: Test Failed" or "===== Test OK"
+    for (linenum, line) in lines.into_iter().enumerate() {
+        if linenum < start_linenum { continue; }
+        if line.starts_with("===== ") {
+            // Extract the previous 10 lines
+            for i in (linenum - 10)..linenum { output_line.set(i, true); }
+            // for i in (linenum - 10)..linenum { println!("{}", lines[i]); }
+            break;
+        } else if 
+            // Skip these lines
+            line.contains("/nuttx-build-farm/") ||  // "/home/luppy/nuttx-build-farm/build-test-knsh64.sh 657247bda89d60112d79bb9b8d223eca5f9641b5 a6b9e718460a56722205c2a84a9b07b94ca664aa"
+            line.starts_with("+ [[") ||  // "[[ 657247bda89d60112d79bb9b8d223eca5f9641b5 != '' ]]"
+            line.starts_with("+ set ") ||  // "set +x"
+            line.starts_with("+ nuttx_hash") || // "nuttx_hash=657247bda89d60112d79bb9b8d223eca5f9641b5"
+            line.starts_with("+ apps_hash") || // "apps_hash=a6b9e718460a56722205c2a84a9b07b94ca664aa"
+            line.starts_with("+ neofetch") || // "neofetch"
+            line.starts_with("+ tmp_path") || // "tmp_path=/tmp/build-test-knsh64"
+            line.starts_with("+ rm -rf /tmp/") ||  // "rm -rf /tmp/build-test-knsh64"
+            line.starts_with("+ mkdir /tmp/") ||  // "mkdir /tmp/build-test-knsh64"
+            line.starts_with("+ cd /tmp/") ||  // "cd /tmp/build-test-knsh64"
+            line.starts_with("+ riscv-none-elf-gcc -v") ||  // "riscv-none-elf-gcc -v"
+            line.starts_with("+ rustup --version") ||  // "rustup --version"
+            line.starts_with("+ rustc --version") ||  // "rustc --version"
+            line.starts_with("+ riscv-none-elf-size") ||  // "riscv-none-elf-size nuttx"
+            line.starts_with("+ script=") ||  // "script=qemu-riscv-knsh64"
+            line.starts_with("+ wget ") ||  // "wget https://raw.githubusercontent.com/lupyuen/nuttx-riscv64/main/qemu-riscv-knsh64.exp"
+            line.starts_with("+ expect ") ||  // "expect ./qemu-riscv-knsh64.exp"
+            false {
+            continue;
+        } else if
+            // Output these lines
+            line.starts_with("+ ") ||
+            line.starts_with("HEAD is now") ||  // "HEAD is now at 657247bda8 libc/modlib: preprocess gnu-elf.ld"
+            line.starts_with("NuttX Source") ||  // "NuttX Source: https://github.com/apache/nuttx/tree/657247bda89d60112d79bb9b8d223eca5f9641b5"
+            line.starts_with("NuttX Apps") ||  // "NuttX Apps: https://github.com/apache/nuttx-apps/tree/a6b9e718460a56722205c2a84a9b07b94ca664aa"
+            line.contains("+ pushd ../apps") || // "CC:  ... + pushd ../apps"
+            line.starts_with("spawn") ||  // "spawn qemu-system-riscv64 -semihosting -M virt,aclint=on -cpu rv64 -kernel nuttx -nographic"
+            line.starts_with("QEMU emulator") ||  // "QEMU emulator version 8.2.2 (Debian 1:8.2.2+ds-0ubuntu1.4)"
+            line.starts_with("OpenSBI") ||  // "OpenSBI v1.3"
+            false {
+            output_line.set(linenum, true);
+            // println!("line={line}");
+        }
+    }
+
+    // Consolidate the Extracted Log Lines
+    let mut msg: Vec<String> = vec![];
+    for (linenum, line) in lines.into_iter().enumerate() {
+        if !output_line.get(linenum).unwrap() { continue; }
+        let line =
+            if line.contains("+ pushd ../apps") { "$ pushd ../apps".into() }  // "CC:  ... + pushd ../apps"
+            else if line.starts_with("spawn ") { line.replace("spawn ", "$ ") }  // "spawn qemu-system-riscv64 -semihosting -M virt,aclint=on -cpu rv64 -kernel nuttx -nographic"
+            else if line.starts_with("+ ") { "$ ".to_string() + &line[2..] }  // "+ " becomes "$ "
+            else { line.to_string() };
+        println!("{linenum}: {line}");
+        msg.push(line);
+    }
+    Ok(msg)
 }
 
 /// Create a GitLab Snippet. Returns the Snippet URL.
