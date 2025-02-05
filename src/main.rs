@@ -17,6 +17,7 @@ use octocrab::{
     models::{pulls::PullRequest, reactions::ReactionContent, IssueState}, 
     pulls::PullRequestHandler
 };
+use regex::Regex;
 use serde_json::Value;
 
 /// Command-Line Arguments
@@ -73,8 +74,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let pulls = octocrab.pulls(&owner, &repo);
         let issues = octocrab.issues(&owner, &repo);
 
+        // Extract the PR Number
+        let regex = Regex::new(".*/([^/]+)$").unwrap();
+        let caps = regex.captures(pr_url.as_str()).unwrap();
+        let pr_id_str = caps.get(1).unwrap().as_str();
+        let pr_id: u64 = pr_id_str.parse().unwrap();
+        println!("pr_id={pr_id}");
+
         // Post the Result and Log Output as PR Comment
-        let pr_id = 88; //// TODO
         process_pr(&pulls, &issues, pr_id).await?;
 
         // TODO: Post to Mastodon
