@@ -8,9 +8,7 @@
 //!   - Allow only Specific People
 
 use std::{
-    env, 
-    thread::sleep, 
-    time::Duration
+    env, os::unix::process::CommandExt, process::Command, thread::sleep, time::Duration
 };
 use clap::Parser;
 use log::info;
@@ -125,10 +123,22 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             if is_apps { head_ref }
             else { "master" };
 
-        // Build and Test NuttX
-        // ./build-test-knsh64.sh HEAD HEAD https://github.com/apache/nuttx master https://github.com/apache/nuttx-apps master
+        // Build and Test NuttX: ./build-test.sh knsh64 /tmp/build-test.log HEAD HEAD https://github.com/apache/nuttx master https://github.com/apache/nuttx-apps master
+        // Which calls: ./build-test-knsh64.sh HEAD HEAD https://github.com/apache/nuttx master https://github.com/apache/nuttx-apps master
         let cmd = format!("./build-test-knsh64.sh {nuttx_hash} {apps_hash} {nuttx_url} {nuttx_ref} {apps_url} {apps_ref}");
         println!("cmd={cmd}");
+        let script = "knsh64";
+        let log = "/tmp/build-test.log";
+        let mut child = Command
+            ::new("../nuttx-build-farm/build-test.sh")
+            .arg(script).arg(log)
+            .arg(nuttx_hash).arg(apps_hash)
+            .arg(nuttx_url).arg(nuttx_ref)
+            .arg(apps_url).arg(apps_ref)
+            .spawn().unwrap();
+        println!("child={child:?}");
+        let status = child.wait().unwrap();
+        println!("status={status:?}");
 
         // Capture the Output Log
         // Extract the Log Output and Result
