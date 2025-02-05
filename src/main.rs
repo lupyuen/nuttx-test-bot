@@ -142,10 +142,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let status = child.wait().unwrap();  // 0 if successful
         println!("status={status:?}");
 
-        // Extract the Log Output and Result
+        // TODO: Extract the Log Output and Result
+        let result = 
+            if status.success() { format!("Build and Test Successful (rv-virt:{script})") }
+            else { format!("Build and Test FAILED (rv-virt:{script})") };
+        println!("result={result}");
+
         // Post as PR Comment
-        // Post to Mastodon
-        // Allow only Specific People
+        // TODO: Post to Mastodon
+        // TODO: Allow only Specific People
         break;
     }
 
