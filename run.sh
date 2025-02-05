@@ -3,9 +3,13 @@
 
 set -e  ## Stop on error
 
-## Set the GitHub Token
+## Set the GitHub Token for reading PRs
 ## export GITHUB_TOKEN=...
 . $HOME/github-token.sh
+
+## Set the GitLab Token for creating snippets
+## export GITLAB_TOKEN=...
+. $HOME/gitlab-token.sh
 
 set -x  ## Echo commands
 
@@ -22,7 +26,7 @@ export RUST_BACKTRACE=1
 
 for (( ; ; ))
 do
-  cargo run -- --owner apache --repo nuttx
-  break;
+  cargo run
+  break
   sleep 300
 done

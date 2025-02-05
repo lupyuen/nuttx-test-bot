@@ -8,14 +8,13 @@
 //!   - Allow only Specific People
 
 use std::{
-    env, os::unix::process::CommandExt, process::Command, thread::sleep, time::Duration
+    fs, process::Command, thread::sleep, time::Duration
 };
 use clap::Parser;
 use log::info;
 use octocrab::{
     issues::IssueHandler, 
-    models::{reactions::ReactionContent, IssueState, Label}, 
-    params,
+    models::{reactions::ReactionContent, IssueState}, 
     pulls::PullRequestHandler
 };
 use serde_json::Value;
@@ -24,13 +23,6 @@ use serde_json::Value;
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct Args {
-    /// Owner of the GitHub Repo that will be processed (`apache`)
-    #[arg(long)]
-    owner: String,
-
-    /// Name of the GitHub Repo that will be processed (`nuttx` or `nuttx-apps`)
-    #[arg(long)]
-    repo: String,
 }
 
 /// Validate the Latest PRs and post the PR Reviews as PR Comments
@@ -151,18 +143,24 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let status = child.wait().unwrap();  // 0 if successful
         println!("status={status:?}");
 
+        // Upload the log as GitLab Snippet
+        let log_content = fs::read_to_string(log).unwrap();
+        let snippet_url = create_snippet(&log_content).await?;
+
         // TODO: Extract the Result and Log Output
-        let result = 
+        let mut result = 
             if status.success() { format!("Build and Test Successful (rv-virt:{script})") }
             else { format!("Build and Test FAILED (rv-virt:{script})") };
+        result.push_str("\n\n");
+        result.push_str(&snippet_url);
         println!("result={result}");
 
         // Get the Handlers for GitHub Pull Requests and Issues
-        let pulls = octocrab.pulls(owner, repo);
-        let issues = octocrab.issues(&args.owner, &args.repo);
+        let pulls = octocrab.pulls(&owner, &repo);
+        let issues = octocrab.issues(&owner, &repo);
 
         // Post the Result and Log Output as PR Comment
-        process_pr(&pulls, &issues, pr_id).await?;
+        process_pr(&pulls, &issues, pr_id, &result).await?;
 
         // TODO: Post to Mastodon
         // TODO: Allow only Specific People
@@ -328,7 +326,7 @@ Thread:
  */
 
 /// Validate the PR. Then post the results as a PR Comment
-async fn process_pr(pulls: &PullRequestHandler<'_>, issues: &IssueHandler<'_>, pr_id: u64) -> Result<(), Box<dyn std::error::Error>> {
+async fn process_pr(pulls: &PullRequestHandler<'_>, issues: &IssueHandler<'_>, pr_id: u64, response_text: &str) -> Result<(), Box<dyn std::error::Error>> {
     // Fetch the PR
     let pr = pulls
         .get(pr_id)
@@ -353,18 +351,17 @@ async fn process_pr(pulls: &PullRequestHandler<'_>, issues: &IssueHandler<'_>, p
 
     // Header for PR Comment
     let header = "[**\\[Experimental Bot, please feedback here\\]**](https://github.com/search?q=repo%3Aapache%2Fnuttx+13552&type=issues)";
-    let response_text = "TODO: response_text";
 
     // Compose the PR Comment
     let comment_text =
         header.to_string() + "\n\n" +
-        &response_text;
+        response_text;
 
     // Post the PR Comment
     let comment = issues
         .create_comment(pr_id, comment_text)
         .await?;
-    info!("PR Comment: {:#?}", comment);       
+    // info!("PR Comment: {:#?}", comment);       
 
     // If successful, delete the PR Reactions
     delete_reactions(issues, pr_id).await?;
@@ -446,4 +443,51 @@ async fn delete_reaction(issues: &IssueHandler<'_>, pr_id: u64, reaction_id: u64
     issues.delete_reaction(pr_id, reaction_id)
         .await?;
     Ok(())
+}
+
+/// Create a GitLab Snippet. Returns the Snippet URL.
+/// https://docs.gitlab.com/ee/api/snippets.html#create-new-snippet
+async fn create_snippet(content: &str) -> Result<String, Box<dyn std::error::Error>> {
+    let user = "lupyuen";
+    let repo = "nuttx-build-log";
+    let body = r#"
+{
+  "title": "NuttX Test Bot",
+  "description": "Build-Test Log",
+  "visibility": "public",
+  "files": [
+    {
+      "content": "Hello world",
+      "file_path": "nuttx-test-bot.log"
+    }
+  ]
+}
+    "#;
+    let mut body: Value = serde_json::from_str(&body).unwrap();
+    body["files"][0]["content"] = content.into();
+
+    let token = std::env::var("GITLAB_TOKEN")
+        .expect("GITLAB_TOKEN env variable is required");
+    let client = reqwest::Client::new();
+    let gitlab = format!("https://gitlab.com/api/v4/projects/{user}%2F{repo}/snippets");
+    let res = client
+        .post(gitlab)
+        .header("Content-Type", "application/json")
+        .header("PRIVATE-TOKEN", token)      
+        .body(body.to_string())
+        .send()
+        .await?;
+    // println!("res={res:?}");
+    if !res.status().is_success() {
+        println!("*** Create Snippet Failed: {user} @ {repo}");
+        sleep(Duration::from_secs(30));
+        panic!();
+    }
+    // println!("Status: {}", res.status());
+    // println!("Headers:\n{:#?}", res.headers());
+    let response = res.text().await?;
+    // println!("response={response}");
+    let response: Value = serde_json::from_str(&response).unwrap();
+    let url = response["web_url"].as_str().unwrap();
+    Ok(url.into())
 }
