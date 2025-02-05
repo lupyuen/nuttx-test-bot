@@ -101,6 +101,37 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         println!("head_ref={head_ref}");
         println!("head_url={head_url}");
 
+        // True if URL is an Apps Repo
+        let is_apps =
+            if head_url.contains("apps") { true }
+            else { false };
+
+        // Set the URLs and Refs for NuttX and Apps
+        let nuttx_hash = "HEAD";
+        let nuttx_url =
+            if is_apps { "https://github.com/apache/nuttx" }
+            else { head_url };
+        let nuttx_ref =
+            if is_apps { "master" }
+            else { head_ref };
+        let apps_hash = "HEAD";
+        let apps_url = 
+            if is_apps { head_url }
+            else { "https://github.com/apache/nuttx-apps" };
+        let apps_ref =
+            if is_apps { head_ref }
+            else { "master" };
+
+        // Build and Test NuttX
+        // ./build-test-knsh64.sh HEAD HEAD https://github.com/apache/nuttx master https://github.com/apache/nuttx-apps master
+        let cmd = format!("./build-test-knsh64.sh {nuttx_hash} {apps_hash} {nuttx_url} {nuttx_ref} {apps_url} {apps_ref}");
+        println!("cmd={cmd}");
+
+        // Capture the Output Log
+        // Extract the Log Output and Result
+        // Post as PR Comment
+        // Post to Mastodon
+        // Allow only Specific People
         break;
     }
 
