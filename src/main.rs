@@ -136,11 +136,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             .arg(nuttx_url).arg(nuttx_ref)
             .arg(apps_url).arg(apps_ref)
             .spawn().unwrap();
-        println!("child={child:?}");
-        let status = child.wait().unwrap();
+        // println!("child={child:?}");
+
+        // Wait for Build and Test to complete
+        let status = child.wait().unwrap();  // 0 if successful
         println!("status={status:?}");
 
-        // Capture the Output Log
         // Extract the Log Output and Result
         // Post as PR Comment
         // Post to Mastodon
