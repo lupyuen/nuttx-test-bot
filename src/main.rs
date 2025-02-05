@@ -199,20 +199,7 @@ async fn build_test(pr: &PullRequest) -> Result<String, Box<dyn std::error::Erro
     let log_content = fs::read_to_string(log).unwrap();
     let snippet_url = create_snippet(&log_content).await?;
 
-    // Extract the Result and Log Output
-    // + git clone https://github.com/anchao/nuttx --branch 25020501 nuttx
-    // + git clone https://github.com/anchao/nuttx-apps --branch 25020501 apps
-    // NuttX Source: https://github.com/apache/nuttx/tree/fa059c19fad275324afdfec023d24a85827516e9
-    // NuttX Apps: https://github.com/apache/nuttx-apps/tree/6d0afa6c9b8d4ecb896f9aa177dbdfcd40218f48
-    // + tools/configure.sh rv-virt:knsh64
-    // + spawn qemu-system-riscv64 -semihosting -M virt,aclint=on -cpu rv64 -kernel nuttx -nographic
-    // + qemu-system-riscv64 --version
-    // QEMU emulator version 9.2.0
-    // OpenSBI v1.5.1
-    // nsh> uname -a
-    // NuttX 10.4.0 fa059c19fa Feb  5 2025 19:25:45 risc-v rv-virt
-    // nsh> ostest
-    // ostest_main: Exiting with status 0
+    // Extract the Log Output
     let log_extract = extract_log(&snippet_url).await?;
     let log_content = log_extract.join("\n");
     println!("log_content=\n{log_content}");
@@ -224,6 +211,8 @@ async fn build_test(pr: &PullRequest) -> Result<String, Box<dyn std::error::Erro
     result.push_str(&log_content);
     result.push_str("\n```\n");
     println!("result={result}");
+
+    // Return the Result
     Ok(result)
 }
 
@@ -250,7 +239,7 @@ async fn extract_log(url: &str) -> Result<Vec<String>, Box<dyn std::error::Error
     // Extract Log from Start Line Number till "===== Error: Test Failed" or "===== Test OK"
     for (linenum, line) in lines.into_iter().enumerate() {
         if linenum < start_linenum { continue; }
-        if line.starts_with("===== ") {
+        if line.starts_with("===== ") || linenum == lines.len() - 1 { ////
             // Extract the previous 10 lines
             for i in (linenum - 10)..linenum { output_line.set(i, true); }
             // for i in (linenum - 10)..linenum { println!("{}", lines[i]); }
