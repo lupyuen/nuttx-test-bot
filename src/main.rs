@@ -49,6 +49,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .personal_token(token.clone())
         .build()?;
 
+    // Fetch all Notifications
     let notifications = octocrab
         .activity()
         .notifications()
@@ -57,10 +58,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .send()
         .await?;
     for n in notifications {
+        // Handle only Mentions
         let reason = n.reason;  // "mention"
         println!("reason={reason}", );
         if reason != "mention" { continue; }
 
+        // TODO: Fetch the Mentioned Comment "@nuttxpr test rv-virt:knsh64"
         let title = n.subject.title;  // "Testing our bot"
         let pr_url = n.subject.url.unwrap();  // https://api.github.com/repos/lupyuen2/wip-nuttx/pulls/88
         let thread_url = n.url;  // https://api.github.com/notifications/threads/14630615157
