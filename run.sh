@@ -1,15 +1,20 @@
 #!/usr/bin/env bash
-## Handle PRs for NuttX Kernel and Apps
+## Build and Test PRs for NuttX Kernel and Apps
 
-## Update the repo
-git pull
+set -e  ## Stop on error
 
 ## Set the GitHub Token
 ## export GITHUB_TOKEN=...
 . $HOME/github-token.sh
 
-## Echo commands
-set -x
+set -x  ## Echo commands
+
+curl -L \
+  -H "Accept: application/vnd.github+json" \
+  -H "Authorization: Bearer $GITHUB_TOKEN" \
+  -H "X-GitHub-Api-Version: 2022-11-28" \
+  https://api.github.com/notifications/threads/14630615157 \
+  | jq
 
 ## Enable Rust Logging
 export RUST_LOG=info 

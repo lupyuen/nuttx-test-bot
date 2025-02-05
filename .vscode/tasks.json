@@ -7,7 +7,7 @@
             "label": "Build",
             "type": "shell",
 
-            "command": "set -e ; . $HOME/github-token.sh ; set -x ; cargo run -- --owner apache --repo nuttx-apps",
+            "command": "set -e ; ./run.sh ; exit ; . $HOME/github-token.sh ; set -x ; cargo run -- --owner apache --repo nuttx-apps",
 
             "problemMatcher": "$rustc",
             "group": {
