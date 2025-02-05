@@ -20,6 +20,7 @@ use octocrab::{
     params,
     pulls::PullRequestHandler
 };
+use serde_json::Value;
 
 /// Command-Line Arguments
 #[derive(Parser, Debug)]
@@ -45,7 +46,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let token = std::env::var("GITHUB_TOKEN")
         .expect("GITHUB_TOKEN env variable is required");
     let octocrab = octocrab::Octocrab::builder()
-        .personal_token(token)
+        .personal_token(token.clone())
         .build()?;
 
     let notifications = octocrab
@@ -56,15 +57,50 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .send()
         .await?;
     for n in notifications {
-        let title = &n.subject.title;
-        let reason = &n.reason;
-        let url = &n.url;
-        let latest_comment_url = &n.subject.latest_comment_url.unwrap();
-        println!("title={title}", );
+        let reason = n.reason;  // "mention"
         println!("reason={reason}", );
-        println!("url={url}", );
-        println!("latest_comment_url={latest_comment_url}", );
+        if reason != "mention" { continue; }
+
+        let title = n.subject.title;  // "Testing our bot"
+        let pr_url = n.subject.url.unwrap();  // https://api.github.com/repos/lupyuen2/wip-nuttx/pulls/88
+        let thread_url = n.url;  // https://api.github.com/notifications/threads/14630615157
+        let latest_comment_url = &n.subject.latest_comment_url.unwrap();  // https://api.github.com/repos/lupyuen2/wip-nuttx/issues/comments/2635685180
+        println!("title={title}");
+        println!("pr_url={pr_url}");
+        println!("thread_url={thread_url}");
+        println!("latest_comment_url={latest_comment_url}");
         // println!("n={n:?}");
+
+        // Fetch the PR
+        // pr_url looks like https://api.github.com/repos/lupyuen2/wip-nuttx/pulls/88
+        let client = reqwest::Client::new();
+        let res = client
+            .get(pr_url.clone())
+            .header("Authorization", format!("Bearer {token}"))
+            .header("User-Agent", "nuttx-rewind-notify")
+            .header("Accept", "application/vnd.github+json")
+            .header("X-GitHub-Api-Version", "2022-11-28")
+            .send()
+            .await?;
+        // println!("res={res:?}");
+        if !res.status().is_success() {
+            println!("*** Get PR Failed: {pr_url}");
+            sleep(Duration::from_secs(30));
+            continue;
+        }
+        // println!("Status: {}", res.status());
+        // println!("Headers:\n{:#?}", res.headers());
+        let body = res.text().await?;
+        // println!("Body: {body}");
+
+        // Get the Head Ref and Head URL from PR
+        let pr: Value = serde_json::from_str(&body).unwrap();
+        let head = &pr["head"];
+        let head_ref = head["ref"].as_str().unwrap();  // "test-bot"
+        let head_url = head["repo"]["html_url"].as_str().unwrap();  // https://github.com/lupyuen2/wip-nuttx
+        println!("head_ref={head_ref}");
+        println!("head_url={head_url}");
+
         break;
     }
 
@@ -153,6 +189,92 @@ Notification { id: NotificationId(14630615157), repository: Repository { id: Rep
     }, reason: "mention", unread: true, updated_at: 2025-02-05T04: 17: 47Z, last_read_at: None, url: Url { scheme: "https", cannot_be_a_base: false, username: "", password: None, host: Some(Domain("api.github.com")), port: None, path: "/notifications/threads/14630615157", query: None, fragment: None
     }
 }
+
+Thread:
+{
+  "id": "14630615157",
+  "unread": true,
+  "reason": "mention",
+  "updated_at": "2025-02-05T04:17:47Z",
+  "last_read_at": null,
+  "subject": {
+    "title": "Testing our bot",
+    "url": "https://api.github.com/repos/lupyuen2/wip-nuttx/pulls/88",
+    "latest_comment_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/issues/comments/2635666191",
+    "type": "PullRequest"
+  },
+  "repository": {
+    "id": 566669181,
+    "node_id": "R_kgDOIcavfQ",
+    "name": "wip-nuttx",
+    "full_name": "lupyuen2/wip-nuttx",
+    "private": false,
+    "owner": {
+      "login": "lupyuen2",
+      "id": 88765682,
+      "node_id": "MDEyOk9yZ2FuaXphdGlvbjg4NzY1Njgy",
+      "avatar_url": "https://avatars.githubusercontent.com/u/88765682?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/lupyuen2",
+      "html_url": "https://github.com/lupyuen2",
+      "followers_url": "https://api.github.com/users/lupyuen2/followers",
+      "following_url": "https://api.github.com/users/lupyuen2/following{/other_user}",
+      "gists_url": "https://api.github.com/users/lupyuen2/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/lupyuen2/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/lupyuen2/subscriptions",
+      "organizations_url": "https://api.github.com/users/lupyuen2/orgs",
+      "repos_url": "https://api.github.com/users/lupyuen2/repos",
+      "events_url": "https://api.github.com/users/lupyuen2/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/lupyuen2/received_events",
+      "type": "Organization",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "html_url": "https://github.com/lupyuen2/wip-nuttx",
+    "description": "(Work-in-Progress for SG2000, Ox64, Star64 and PinePhone) Apache NuttX is a mature, real-time embedded operating system (RTOS)",
+    "fork": true,
+    "url": "https://api.github.com/repos/lupyuen2/wip-nuttx",
+    "forks_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/forks",
+    "keys_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/keys{/key_id}",
+    "collaborators_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/collaborators{/collaborator}",
+    "teams_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/teams",
+    "hooks_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/hooks",
+    "issue_events_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/issues/events{/number}",
+    "events_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/events",
+    "assignees_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/assignees{/user}",
+    "branches_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/branches{/branch}",
+    "tags_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/tags",
+    "blobs_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/git/blobs{/sha}",
+    "git_tags_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/git/tags{/sha}",
+    "git_refs_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/git/refs{/sha}",
+    "trees_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/git/trees{/sha}",
+    "statuses_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/statuses/{sha}",
+    "languages_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/languages",
+    "stargazers_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/stargazers",
+    "contributors_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/contributors",
+    "subscribers_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/subscribers",
+    "subscription_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/subscription",
+    "commits_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/commits{/sha}",
+    "git_commits_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/git/commits{/sha}",
+    "comments_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/comments{/number}",
+    "issue_comment_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/issues/comments{/number}",
+    "contents_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/contents/{+path}",
+    "compare_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/compare/{base}...{head}",
+    "merges_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/merges",
+    "archive_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/{archive_format}{/ref}",
+    "downloads_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/downloads",
+    "issues_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/issues{/number}",
+    "pulls_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/pulls{/number}",
+    "milestones_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/milestones{/number}",
+    "notifications_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/notifications{?since,all,participating}",
+    "labels_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/labels{/name}",
+    "releases_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/releases{/id}",
+    "deployments_url": "https://api.github.com/repos/lupyuen2/wip-nuttx/deployments"
+  },
+  "url": "https://api.github.com/notifications/threads/14630615157",
+  "subscription_url": "https://api.github.com/notifications/threads/14630615157/subscription"
+}
+
  */
 
 /// Validate the PR. Then post the results as a PR Comment
