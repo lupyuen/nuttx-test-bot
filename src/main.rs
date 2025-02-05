@@ -119,7 +119,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let apps_hash = "HEAD";
         let apps_url = 
             if is_apps { head_url }
-            else { "aaaahttps://github.com/apache/nuttx-apps" };
+            else { "https://github.com/apache/nuttx-apps" };
         let apps_ref =
             if is_apps { head_ref }
             else { "master" };
@@ -149,9 +149,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         // TODO: Extract the Result and Log Output
         let mut result = 
-            if status.success() { format!("Build and Test Successful (rv-virt:{script})") }
-            else { format!("Build and Test FAILED (rv-virt:{script})") };
-        result.push_str("\n\n");
+            if status.success() { format!("Build and Test Successful (rv-virt:{script})\n") }
+            else { format!("Build and Test **FAILED** (rv-virt:{script})\n") };
         result.push_str(&snippet_url);
         println!("result={result}");
 
