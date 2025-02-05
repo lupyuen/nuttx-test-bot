@@ -220,7 +220,7 @@ async fn build_test(pr: &PullRequest) -> Result<String, Box<dyn std::error::Erro
         if status.success() { format!("Build and Test Successful (rv-virt:{script})\n") }
         else { format!("Build and Test **FAILED** (rv-virt:{script})\n") };
     result.push_str(&snippet_url);
-    result.push_str("\n```text");
+    result.push_str("\n```text\n");
     result.push_str(&log_content);
     result.push_str("\n```\n");
     println!("result={result}");
@@ -232,7 +232,7 @@ async fn build_test(pr: &PullRequest) -> Result<String, Box<dyn std::error::Erro
 async fn extract_log(url: &str) -> Result<Vec<String>, Box<dyn std::error::Error>> {
     // raw_url looks like "https://gitlab.com/lupyuen/nuttx-build-log/-/snippets/4799962/raw/"
     let parsed_url = Url::parse(url).unwrap();
-    let start_line = parsed_url.fragment().unwrap_or("L1");  // "L85"
+    let start_line = parsed_url.fragment().unwrap_or("L1");  // "L85" ////
     let start_linenum = start_line[1..].parse::<usize>().unwrap();  // 85
     let mut parsed_url = parsed_url.clone();
     parsed_url.set_fragment(None); // "https://gitlab.com/lupyuen/nuttx-build-log/-/snippets/4799962"
@@ -262,6 +262,10 @@ async fn extract_log(url: &str) -> Result<Vec<String>, Box<dyn std::error::Error
             line.starts_with("+ set ") ||  // "set +x"
             line.starts_with("+ nuttx_hash") || // "nuttx_hash=657247bda89d60112d79bb9b8d223eca5f9641b5"
             line.starts_with("+ apps_hash") || // "apps_hash=a6b9e718460a56722205c2a84a9b07b94ca664aa"
+            line.starts_with("+ nuttx_url") || // nuttx_url=https://github.com/apache/nuttx ////
+            line.starts_with("+ apps_url") || // apps_url=https://github.com/apache/nuttx-apps ////
+            line.starts_with("+ nuttx_ref") || // nuttx_ref=test-bot ////
+            line.starts_with("+ apps_ref") || // apps_ref=master ////
             line.starts_with("+ neofetch") || // "neofetch"
             line.starts_with("+ tmp_path") || // "tmp_path=/tmp/build-test-knsh64"
             line.starts_with("+ rm -rf /tmp/") ||  // "rm -rf /tmp/build-test-knsh64"
@@ -286,6 +290,10 @@ async fn extract_log(url: &str) -> Result<Vec<String>, Box<dyn std::error::Error
             line.starts_with("spawn") ||  // "spawn qemu-system-riscv64 -semihosting -M virt,aclint=on -cpu rv64 -kernel nuttx -nographic"
             line.starts_with("QEMU emulator") ||  // "QEMU emulator version 8.2.2 (Debian 1:8.2.2+ds-0ubuntu1.4)"
             line.starts_with("OpenSBI") ||  // "OpenSBI v1.3"
+            line.starts_with("nsh> uname") ||  // "nsh> uname -a" ////
+            line.starts_with("NuttX") ||  // "NuttX 10.4.0 fa059c19fa Feb  5 2025 19:25:45 risc-v rv-virt" ////
+            line.starts_with("nsh> ostest") ||  // "nsh> ostest" ////
+            line.starts_with("ostest_main: Exiting") ||  // "ostest_main: Exiting with status 0" ////
             false {
             output_line.set(linenum, true);
             // println!("line={line}");
