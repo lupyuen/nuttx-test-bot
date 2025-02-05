@@ -42,6 +42,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .build()?;
 
     // Fetch all Notifications
+    // TODO: Unread only
     let notifications = octocrab
         .activity()
         .notifications()
@@ -56,6 +57,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let reason = n.reason;  // "mention"
         println!("reason={reason}", );
         if reason != "mention" { continue; }
+        // TODO: Mark Notification as Read
 
         // TODO: Fetch the Mentioned Comment "@nuttxpr test rv-virt:knsh64"
         let owner = n.repository.owner.unwrap().login;
@@ -86,9 +88,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         // Post the Result and Log Output as PR Comment
         process_pr(&pulls, &issues, pr_id).await?;
 
+        // TODO: Mark Notification as Read
+        // TODO: Continue to Next Notification
+        break;
+
+        // TODO: Test on Oz64 SG2000
         // TODO: Post to Mastodon
         // TODO: Allow only Specific People
-        break;
     }
 
     // Return OK
@@ -144,7 +150,7 @@ async fn process_pr(pulls: &PullRequestHandler<'_>, issues: &IssueHandler<'_>, p
     Ok(())
 }
 
-/// Build and Test the PR
+/// Build and Test the PR. Result the Build-Test Result.
 async fn build_test(pr: &PullRequest) -> Result<String, Box<dyn std::error::Error>> {
     // Get the Head Ref and Head URL from PR
     // let pr: Value = serde_json::from_str(&body).unwrap();
