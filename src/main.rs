@@ -92,9 +92,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         // TODO: Continue to Next Notification
         break;
 
-        // TODO: Test on Oz64 SG2000
-        // TODO: Post to Mastodon
+        // TODO: Allow only Specific Repos: apache/nuttx, apache/nuttx-apps
         // TODO: Allow only Specific People
+        // TODO: Post to Mastodon
     }
 
     // Return OK
