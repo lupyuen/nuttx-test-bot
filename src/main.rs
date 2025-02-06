@@ -207,13 +207,14 @@ async fn build_test(pr: &PullRequest) -> Result<String, Box<dyn std::error::Erro
     let snippet_url = create_snippet(&log_content).await?;
 
     // Extract the Log Output
-    // TODO: Fix `rv-virt`
+    // let target = "rv-virt:knsh64";
+    let target = "milkv_duos:nsh";
     let log_extract = extract_log(&snippet_url).await?;
     let log_content = log_extract.join("\n");
     println!("log_content=\n{log_content}");
     let mut result = 
-        if status.success() { format!("Build and Test Successful (rv-virt:{script})\n") }
-        else { format!("Build and Test **FAILED** (rv-virt:{script})\n") };
+        if status.success() { format!("Build and Test Successful ({target})\n") }
+        else { format!("Build and Test **FAILED** ({target})\n") };
     result.push_str(&snippet_url);
     result.push_str("\n```text\n");
     result.push_str(&log_content);
