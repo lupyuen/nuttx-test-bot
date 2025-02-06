@@ -260,10 +260,13 @@ async fn extract_log(url: &str) -> Result<Vec<String>, Box<dyn std::error::Error
             line.starts_with("+ set ") ||  // "set +x"
             line.starts_with("+ nuttx_hash") || // "nuttx_hash=657247bda89d60112d79bb9b8d223eca5f9641b5"
             line.starts_with("+ apps_hash") || // "apps_hash=a6b9e718460a56722205c2a84a9b07b94ca664aa"
-            line.starts_with("+ nuttx_url") || // nuttx_url=https://github.com/apache/nuttx ////
-            line.starts_with("+ apps_url") || // apps_url=https://github.com/apache/nuttx-apps ////
-            line.starts_with("+ nuttx_ref") || // nuttx_ref=test-bot ////
-            line.starts_with("+ apps_ref") || // apps_ref=master ////
+            line.starts_with("+ nuttx_url") || // "nuttx_url=https://github.com/apache/nuttx" ////
+            line.starts_with("+ apps_url") || // "apps_url=https://github.com/apache/nuttx-apps" ////
+            line.starts_with("+ nuttx_ref") || // "nuttx_ref=test-bot" ////
+            line.starts_with("+ apps_ref") || // "apps_ref=master" ////
+            line.starts_with("+ export ") || // "export OZ64_SERVER=tftpserver" ////
+            line.starts_with("+ OZ64_SERVER") || // "OZ64_SERVER=tftpserver" ////
+            line.starts_with("+ script_dir") || // "script_dir=/home/luppy/nuttx-build-farm" ////
             line.starts_with("+ neofetch") || // "neofetch"
             line.starts_with("+ tmp_path") || // "tmp_path=/tmp/build-test-knsh64"
             line.starts_with("+ rm -rf /tmp/") ||  // "rm -rf /tmp/build-test-knsh64"
