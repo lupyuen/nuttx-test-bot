@@ -184,9 +184,10 @@ async fn build_test(pr: &PullRequest) -> Result<String, Box<dyn std::error::Erro
 
     // Build and Test NuttX: ./build-test.sh knsh64 /tmp/build-test.log HEAD HEAD https://github.com/apache/nuttx master https://github.com/apache/nuttx-apps master
     // Which calls: ./build-test-knsh64.sh HEAD HEAD https://github.com/apache/nuttx master https://github.com/apache/nuttx-apps master
-    let cmd = format!("./build-test-knsh64.sh {nuttx_hash} {apps_hash} {nuttx_url} {nuttx_ref} {apps_url} {apps_ref}");
+    // let script = "knsh64";
+    let script = "oz64";
+    let cmd = format!("./build-test-{script}.sh {nuttx_hash} {apps_hash} {nuttx_url} {nuttx_ref} {apps_url} {apps_ref}");
     println!("cmd={cmd}");
-    let script = "knsh64";
     let log = "/tmp/build-test.log";
     let mut child = Command
         ::new("../nuttx-build-farm/build-test.sh")
@@ -206,6 +207,7 @@ async fn build_test(pr: &PullRequest) -> Result<String, Box<dyn std::error::Erro
     let snippet_url = create_snippet(&log_content).await?;
 
     // Extract the Log Output
+    // TODO: Fix `rv-virt`
     let log_extract = extract_log(&snippet_url).await?;
     let log_content = log_extract.join("\n");
     println!("log_content=\n{log_content}");
