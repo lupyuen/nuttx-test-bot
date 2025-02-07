@@ -60,8 +60,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         // TODO: Mark Notification as Read
 
         // TODO: Fetch the Mentioned Comment "@nuttxpr test rv-virt:knsh64"
-        let owner = &n.repository.owner.clone().unwrap().login;
-        let repo = &n.repository.name;
+        let owner = n.repository.owner.clone().unwrap().login;
+        let repo = n.repository.name.clone();
         let pr_title = &n.subject.title;  // "Testing our bot"
         let pr_url = n.subject.url.clone().unwrap();  // https://api.github.com/repos/lupyuen2/wip-nuttx/pulls/88
         let thread_url = &n.url;  // https://api.github.com/notifications/threads/14630615157
@@ -78,21 +78,27 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let pr_id_str = caps.get(1).unwrap().as_str();
         let pr_id: u64 = pr_id_str.parse().unwrap();
         println!("pr_id={pr_id}");
+
+        // Allow only Specific Repos: apache/nuttx, apache/nuttx-apps
+        if owner != "apache" ||
+            !["nuttx", "nuttx-apps"].contains(&repo.as_str()) {
+            println!("Disallowed owner/repo: {owner}/{repo}");
+            break;
+        }
         println!("PLEASE VERIFY");
         sleep(Duration::from_secs(30));
 
         // Get the Handlers for GitHub Pull Requests and Issues
-        let pulls = octocrab.pulls(&*owner, &*repo);
-        let issues = octocrab.issues(&*owner, &*repo);
+        let pulls = octocrab.pulls(&owner, &repo);
+        let issues = octocrab.issues(&owner, &repo);
 
         // Post the Result and Log Output as PR Comment
-        process_pr(&pulls, &issues, pr_id).await?;
+        // process_pr(&pulls, &issues, pr_id).await?;
 
         // TODO: Mark Notification as Read
         // TODO: Continue to Next Notification
         break;
 
-        // TODO: Allow only Specific Repos: apache/nuttx, apache/nuttx-apps
         // TODO: Allow only Specific People
         // TODO: Post to Mastodon
     }
