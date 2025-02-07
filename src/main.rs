@@ -55,11 +55,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     for n in notifications {
         // Handle only Mentions
         let reason = &n.reason;  // "mention"
-        println!("reason={reason}", );
+        // println!("reason={reason}", );
         if reason != "mention" { continue; }
         // TODO: Mark Notification as Read
 
-        // TODO: Fetch the Mentioned Comment "@nuttxpr test rv-virt:knsh64"
+        // Fetch the PR from the Notification
         let owner = n.repository.owner.clone().unwrap().login;
         let repo = n.repository.name.clone();
         let pr_title = &n.subject.title;  // "Testing our bot"
@@ -93,6 +93,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         // Post the Result and Log Output as PR Comment
         process_pr(&pulls, &issues, pr_id).await?;
 
+        // Wait 1 minute
+        sleep(Duration::from_secs(60));
+
         // TODO: Mark Notification as Read
         // TODO: Continue to Next Notification
         break;
@@ -107,24 +110,21 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 /// Build and Test the PR. Then post the results as a PR Comment
 async fn process_pr(pulls: &PullRequestHandler<'_>, issues: &IssueHandler<'_>, pr_id: u64) -> Result<(), Box<dyn std::error::Error>> {
-    // Fetch the PR Comments, newest first. Find My Mention.
-    let comments = issues
-        .list_comments(pr_id)
-        .send()
-        .await?;
-    // info!("{comments:#?}");
-    for comment in comments {
-        let user = &comment.user.login;  // "nuttxpr"
-        let body = &comment.body.clone().unwrap_or("".into());
-        let body = body.trim();  // "@nuttxpr test milkv_duos:nsh"
-
-        // if user == "nuttxpr" { println!("Skipping, already handled"); break; }
-        if !body.starts_with("@nuttxpr") { continue; }
-        println!("body={body}");
-
-        // body contains "@nuttxpr test milkv_duos:nsh"
-        // Parse the command
-    }
+    // Get the Command and Args: ["test", "milkv_duos:nsh"]
+    let args = get_command(issues, pr_id).await?;
+    if args.is_none() { println!("Missing command"); return Ok(()); }
+    let args = args.unwrap();
+    let cmd = &args[0];
+    let target = &args[1];
+    if cmd != "test" { println!("Unknown command: {cmd}"); return Ok(()); }
+    let script = match target.as_str() {
+        "milkv_duos:nsh" => "oz64",
+        "oz64:nsh" => "oz64",
+        "rv-virt:knsh64" => "knsh64",
+        _ => { println!("Unknown target: {target}"); return Ok(()); }
+    };
+    println!("target={target}");
+    println!("script={script}");
 
     // std::process::exit(0); ////
     println!("PLEASE VERIFY");
@@ -153,7 +153,7 @@ async fn process_pr(pulls: &PullRequestHandler<'_>, issues: &IssueHandler<'_>, p
     bump_reactions(issues, pr_id, reactions).await?;
 
     // Build and Test the PR
-    let response_text = build_test(&pr).await?;
+    let response_text = build_test(&pr, target, script).await?;
 
     // Header for PR Comment
     let header = "[**\\[Experimental Bot, please feedback here\\]**](https://github.com/search?q=repo%3Aapache%2Fnuttx+15779&type=issues)";
@@ -177,8 +177,33 @@ async fn process_pr(pulls: &PullRequestHandler<'_>, issues: &IssueHandler<'_>, p
     Ok(())
 }
 
+/// Get the Last Command from the PR: "@nuttxpr test milkv_duos:nsh" becomes ["test", "milkv_duos:nsh"]
+async fn get_command(issues: &IssueHandler<'_>, pr_id: u64) -> Result<Option<Vec<String>>, Box<dyn std::error::Error>> {
+    let comments = issues
+        .list_comments(pr_id)
+        .send()
+        .await?;
+    for comment in comments {
+        let user = &comment.user.login;  // "nuttxpr"
+        let body = &comment.body.clone().unwrap_or("".into());
+        let body = body.trim().replace("  ", " ");  // "@nuttxpr test milkv_duos:nsh"
+
+        // if user == "nuttxpr" { println!("Skipping, already handled"); break; }
+        if !body.starts_with("@nuttxpr") { continue; }
+        println!("body={body}");
+
+        // body contains "@nuttxpr test milkv_duos:nsh"
+        // Parse the command
+        let mut args: Vec<String> = body.split_whitespace().map(|v| v.to_string()).collect();
+        args.remove(0);  // ["test", "milkv_duos:nsh"]
+        println!("args={args:?}");
+        return Ok(Some(args));
+    }
+    Ok(None)
+}
+
 /// Build and Test the PR. Result the Build-Test Result.
-async fn build_test(pr: &PullRequest) -> Result<String, Box<dyn std::error::Error>> {
+async fn build_test(pr: &PullRequest, target: &str, script: &str) -> Result<String, Box<dyn std::error::Error>> {
     // Get the Head Ref and Head URL from PR
     // let pr: Value = serde_json::from_str(&body).unwrap();
     // let pr_id = pr["number"].as_u64().unwrap();
@@ -211,8 +236,6 @@ async fn build_test(pr: &PullRequest) -> Result<String, Box<dyn std::error::Erro
 
     // Build and Test NuttX: ./build-test.sh knsh64 /tmp/build-test.log HEAD HEAD https://github.com/apache/nuttx master https://github.com/apache/nuttx-apps master
     // Which calls: ./build-test-knsh64.sh HEAD HEAD https://github.com/apache/nuttx master https://github.com/apache/nuttx-apps master
-    // let script = "knsh64";
-    let script = "oz64";
     let cmd = format!("./build-test-{script}.sh {nuttx_hash} {apps_hash} {nuttx_url} {nuttx_ref} {apps_url} {apps_ref}");
     println!("cmd={cmd}");
     let log = "/tmp/build-test.log";
@@ -234,8 +257,6 @@ async fn build_test(pr: &PullRequest) -> Result<String, Box<dyn std::error::Erro
     let snippet_url = create_snippet(&log_content).await?;
 
     // Extract the Log Output
-    // let target = "rv-virt:knsh64";
-    let target = "milkv_duos:nsh";
     let log_extract = extract_log(&snippet_url).await?;
     let log_content = log_extract.join("\n");
     println!("log_content=\n{log_content}");
