@@ -93,7 +93,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let issues = octocrab.issues(&owner, &repo);
 
         // Post the Result and Log Output as PR Comment
-        // process_pr(&pulls, &issues, pr_id).await?;
+        process_pr(&pulls, &issues, pr_id).await?;
 
         // TODO: Mark Notification as Read
         // TODO: Continue to Next Notification
