@@ -186,6 +186,7 @@ async fn get_command(issues: &IssueHandler<'_>, pr_id: u64) -> Result<Option<Vec
         let body = body.trim().replace("  ", " ").to_lowercase();  // "@nuttxpr test milkv_duos:nsh"
 
         // Skip PRs that I have already replied. This will prevent Looping Replies.
+        // TODO: Change `nuttxpr` to the GitHub User ID of the Bot
         if user == "nuttxpr" { println!("Skipping PR, already executed"); break; }
         if !body.starts_with("@nuttxpr") { continue; }
         println!("body={body}");
