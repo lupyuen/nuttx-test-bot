@@ -12,7 +12,7 @@ use std::{
 };
 use bit_vec::BitVec;
 use clap::Parser;
-use log::info;
+use log::{error, info, warn};
 use octocrab::{
     issues::IssueHandler, 
     models::{pulls::PullRequest, reactions::ReactionContent, IssueState}, 
@@ -70,7 +70,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         println!("pr_title={pr_title}");
         println!("pr_url={pr_url}");
         println!("thread_url={thread_url}");
-        if !pr_url.as_str().contains("/pulls/") { println!("Not a PR: {pr_url}"); continue; }
+        if !pr_url.as_str().contains("/pulls/") { error!("Not a PR: {pr_url}"); continue; }
         // println!("n={n:#?}");
 
         // Extract the PR Number
@@ -83,7 +83,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         // Allow only Specific Repos: apache/nuttx, apache/nuttx-apps
         if owner != "apache" ||
             !["nuttx", "nuttx-apps"].contains(&repo.as_str()) {
-            println!("Disallowed owner/repo: {owner}/{repo}");
+            error!("Disallowed owner/repo: {owner}/{repo}");
             continue;
         }
 
@@ -113,16 +113,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 async fn process_pr(pulls: &PullRequestHandler<'_>, issues: &IssueHandler<'_>, pr_id: u64) -> Result<(), Box<dyn std::error::Error>> {
     // Get the Command and Args: ["test", "milkv_duos:nsh"]
     let args = get_command(issues, pr_id).await?;
-    if args.is_none() { println!("Missing command"); return Ok(()); }
+    if args.is_none() { warn!("Missing command"); return Ok(()); }
     let args = args.unwrap();
     let cmd = &args[0];
     let target = &args[1];
-    if cmd != "test" { println!("Unknown command: {cmd}"); return Ok(()); }
+    if cmd != "test" { error!("Unknown command: {cmd}"); return Ok(()); }
     let (script, target) = match target.as_str() {
         "milkv_duos:nsh" => ("oz64", target),
         "oz64:nsh"       => ("oz64", &"milkv_duos:nsh".into()),
         "rv-virt:knsh64" => ("knsh64", target),
-        _ => { println!("Unknown target: {target}"); return Ok(()); }
+        _ => { error!("Unknown target: {target}"); return Ok(()); }
     };
     println!("target={target}");
     println!("script={script}");
@@ -187,7 +187,7 @@ async fn get_command(issues: &IssueHandler<'_>, pr_id: u64) -> Result<Option<Vec
 
         // Skip PRs that I have already replied. This will prevent Looping Replies.
         // TODO: Change `nuttxpr` to the GitHub User ID of the Bot
-        if user == "nuttxpr" { println!("Skipping PR, already executed"); break; }
+        if user == "nuttxpr" { warn!("Skipping PR, already executed"); break; }
         if !body.starts_with("@nuttxpr") { continue; }
         println!("body={body}");
 
