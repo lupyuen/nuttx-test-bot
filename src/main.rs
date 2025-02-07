@@ -90,21 +90,22 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let pulls = octocrab.pulls(&owner, &repo);
         let issues = octocrab.issues(&owner, &repo);
 
-        // Fetch the PR Comments. Find My Mention.
+        // Fetch the PR Comments, newest first. Find My Mention.
         let comments = issues
             .list_comments(pr_id)
             .send()
             .await?;
         // info!("{comments:#?}");
         for comment in comments {
-            let user = &comment.user.login;
+            let user = &comment.user.login;  // "nuttxpr"
             let body = &comment.body.clone().unwrap_or("".into());
-            let body = body.trim();
+            let body = body.trim();  // "@nuttxpr test milkv_duos:nsh"
 
-            // Look for My Mention. Skip if already handled.
             // if user == "nuttxpr" { println!("Skipping, already handled"); break; }
             if !body.starts_with("@nuttxpr") { continue; }
             println!("body={body}");
+
+            // body contains "@nuttxpr test milkv_duos:nsh"
         }
         // std::process::exit(0); ////
 
