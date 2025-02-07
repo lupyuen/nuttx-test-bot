@@ -127,10 +127,6 @@ async fn process_pr(pulls: &PullRequestHandler<'_>, issues: &IssueHandler<'_>, p
     println!("target={target}");
     println!("script={script}");
 
-    // std::process::exit(0); ////
-    println!("PLEASE VERIFY");
-    sleep(Duration::from_secs(30));
-
     // Fetch the PR
     let pr = pulls
         .get(pr_id)
@@ -212,8 +208,8 @@ async fn build_test(pr: &PullRequest, target: &str, script: &str) -> Result<Stri
     let head = &pr.head;
     let head_ref = &head.ref_field;  // "test-bot"
     let head_url = head.repo.clone().unwrap().html_url.unwrap();  // https://github.com/lupyuen2/wip-nuttx
-    println!("head_ref={head_ref}");
-    println!("head_url={head_url}");
+    // println!("head_ref={head_ref}");
+    // println!("head_url={head_url}");
 
     // True if URL is an Apps Repo
     let is_apps =
@@ -238,9 +234,14 @@ async fn build_test(pr: &PullRequest, target: &str, script: &str) -> Result<Stri
 
     // Build and Test NuttX: ./build-test.sh knsh64 /tmp/build-test.log HEAD HEAD https://github.com/apache/nuttx master https://github.com/apache/nuttx-apps master
     // Which calls: ./build-test-knsh64.sh HEAD HEAD https://github.com/apache/nuttx master https://github.com/apache/nuttx-apps master
-    let cmd = format!("./build-test-{script}.sh {nuttx_hash} {apps_hash} {nuttx_url} {nuttx_ref} {apps_url} {apps_ref}");
-    println!("cmd={cmd}");
-    let log = "/tmp/build-test.log";
+    let cmd = format!("./build-test-{script}.sh \n  {nuttx_hash} {apps_hash} \n  {nuttx_url} {nuttx_ref} \n  {apps_url} {apps_ref}");
+    println!("{cmd}");
+    // std::process::exit(0); ////
+    println!("PLEASE VERIFY");
+    sleep(Duration::from_secs(30));
+
+    // Start the Build and Test Script
+    let log = "/tmp/nuttx-test-bot.log";
     let mut child = Command
         ::new("../nuttx-build-farm/build-test.sh")
         .arg(script).arg(log)
