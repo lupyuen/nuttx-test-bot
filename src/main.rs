@@ -54,24 +54,22 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // For Every Notification...
     for n in notifications {
         // Handle only Mentions
-        let reason = n.reason;  // "mention"
+        let reason = &n.reason;  // "mention"
         println!("reason={reason}", );
         if reason != "mention" { continue; }
         // TODO: Mark Notification as Read
 
         // TODO: Fetch the Mentioned Comment "@nuttxpr test rv-virt:knsh64"
-        let owner = n.repository.owner.unwrap().login;
-        let repo = n.repository.name;
-        let pr_title = n.subject.title;  // "Testing our bot"
-        let pr_url = n.subject.url.unwrap();  // https://api.github.com/repos/lupyuen2/wip-nuttx/pulls/88
-        let thread_url = n.url;  // https://api.github.com/notifications/threads/14630615157
-        let latest_comment_url = &n.subject.latest_comment_url.unwrap();  // https://api.github.com/repos/lupyuen2/wip-nuttx/issues/comments/2635685180
+        let owner = &n.repository.owner.clone().unwrap().login;
+        let repo = &n.repository.name;
+        let pr_title = &n.subject.title;  // "Testing our bot"
+        let pr_url = n.subject.url.clone().unwrap();  // https://api.github.com/repos/lupyuen2/wip-nuttx/pulls/88
+        let thread_url = &n.url;  // https://api.github.com/notifications/threads/14630615157
         println!("owner={owner}");
         println!("repo={repo}");
         println!("pr_title={pr_title}");
         println!("pr_url={pr_url}");
         println!("thread_url={thread_url}");
-        println!("latest_comment_url={latest_comment_url}");
         // println!("n={n:?}");
 
         // Extract the PR Number
@@ -84,8 +82,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         sleep(Duration::from_secs(30));
 
         // Get the Handlers for GitHub Pull Requests and Issues
-        let pulls = octocrab.pulls(&owner, &repo);
-        let issues = octocrab.issues(&owner, &repo);
+        let pulls = octocrab.pulls(&*owner, &*repo);
+        let issues = octocrab.issues(&*owner, &*repo);
 
         // Post the Result and Log Output as PR Comment
         process_pr(&pulls, &issues, pr_id).await?;
