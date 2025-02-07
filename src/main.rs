@@ -90,25 +90,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let pulls = octocrab.pulls(&owner, &repo);
         let issues = octocrab.issues(&owner, &repo);
 
-        // Fetch the PR Comments, newest first. Find My Mention.
-        let comments = issues
-            .list_comments(pr_id)
-            .send()
-            .await?;
-        // info!("{comments:#?}");
-        for comment in comments {
-            let user = &comment.user.login;  // "nuttxpr"
-            let body = &comment.body.clone().unwrap_or("".into());
-            let body = body.trim();  // "@nuttxpr test milkv_duos:nsh"
-
-            // if user == "nuttxpr" { println!("Skipping, already handled"); break; }
-            if !body.starts_with("@nuttxpr") { continue; }
-            println!("body={body}");
-
-            // body contains "@nuttxpr test milkv_duos:nsh"
-        }
-        // std::process::exit(0); ////
-
         // Post the Result and Log Output as PR Comment
         process_pr(&pulls, &issues, pr_id).await?;
 
@@ -126,6 +107,26 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 /// Build and Test the PR. Then post the results as a PR Comment
 async fn process_pr(pulls: &PullRequestHandler<'_>, issues: &IssueHandler<'_>, pr_id: u64) -> Result<(), Box<dyn std::error::Error>> {
+    // Fetch the PR Comments, newest first. Find My Mention.
+    let comments = issues
+        .list_comments(pr_id)
+        .send()
+        .await?;
+    // info!("{comments:#?}");
+    for comment in comments {
+        let user = &comment.user.login;  // "nuttxpr"
+        let body = &comment.body.clone().unwrap_or("".into());
+        let body = body.trim();  // "@nuttxpr test milkv_duos:nsh"
+
+        // if user == "nuttxpr" { println!("Skipping, already handled"); break; }
+        if !body.starts_with("@nuttxpr") { continue; }
+        println!("body={body}");
+
+        // body contains "@nuttxpr test milkv_duos:nsh"
+        // Parse the command
+    }
+
+    // std::process::exit(0); ////
     println!("PLEASE VERIFY");
     sleep(Duration::from_secs(30));
 
