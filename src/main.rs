@@ -183,7 +183,7 @@ async fn get_command(issues: &IssueHandler<'_>, pr_id: u64) -> Result<Option<Vec
     for comment in comments {
         let user = &comment.user.login;  // "nuttxpr"
         let body = &comment.body.clone().unwrap_or("".into());
-        let body = body.trim().replace("  ", " ");  // "@nuttxpr test milkv_duos:nsh"
+        let body = body.trim().replace("  ", " ").to_lowercase();  // "@nuttxpr test milkv_duos:nsh"
 
         // Skip PRs that I have already replied. This will prevent Looping Replies.
         if user == "nuttxpr" { println!("Skipping PR, already executed"); break; }
