@@ -74,7 +74,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         // println!("n={n:#?}");
 
         // Extract the PR Number
-        let regex = Regex::new(".*/([^/]+)$").unwrap();
+        let regex = Regex::new(".*/([0-9]+)$").unwrap();
         let caps = regex.captures(pr_url.as_str()).unwrap();
         let pr_id_str = caps.get(1).unwrap().as_str();
         let pr_id: u64 = pr_id_str.parse().unwrap();
