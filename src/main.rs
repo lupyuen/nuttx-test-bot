@@ -70,6 +70,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         println!("pr_title={pr_title}");
         println!("pr_url={pr_url}");
         println!("thread_url={thread_url}");
+        if !pr_url.as_str().contains("/pulls/") { println!("Not a PR: {pr_url}"); continue; }
         // println!("n={n:#?}");
 
         // Extract the PR Number
@@ -83,7 +84,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         if owner != "apache" ||
             !["nuttx", "nuttx-apps"].contains(&repo.as_str()) {
             println!("Disallowed owner/repo: {owner}/{repo}");
-            break;
+            continue;
         }
 
         // Get the Handlers for GitHub Pull Requests and Issues
@@ -117,10 +118,10 @@ async fn process_pr(pulls: &PullRequestHandler<'_>, issues: &IssueHandler<'_>, p
     let cmd = &args[0];
     let target = &args[1];
     if cmd != "test" { println!("Unknown command: {cmd}"); return Ok(()); }
-    let script = match target.as_str() {
-        "milkv_duos:nsh" => "oz64",
-        "oz64:nsh" => "oz64",
-        "rv-virt:knsh64" => "knsh64",
+    let (script, target) = match target.as_str() {
+        "milkv_duos:nsh" => ("oz64", target),
+        "oz64:nsh"       => ("oz64", &"milkv_duos:nsh".into()),
+        "rv-virt:knsh64" => ("knsh64", target),
         _ => { println!("Unknown target: {target}"); return Ok(()); }
     };
     println!("target={target}");
