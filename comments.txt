@@ -1,0 +1,787 @@
+Page {
+        items: [
+            Comment {
+                id: CommentId(
+                    2641331180,
+                ),
+                node_id: "IC_kwDODZiUac6db4Ps",
+                url: Url {
+                    scheme: "https",
+                    cannot_be_a_base: false,
+                    username: "",
+                    password: None,
+                    host: Some(
+                        Domain(
+                            "api.github.com",
+                        ),
+                    ),
+                    port: None,
+                    path: "/repos/apache/nuttx/issues/comments/2641331180",
+                    query: None,
+                    fragment: None,
+                },
+                html_url: Url {
+                    scheme: "https",
+                    cannot_be_a_base: false,
+                    username: "",
+                    password: None,
+                    host: Some(
+                        Domain(
+                            "github.com",
+                        ),
+                    ),
+                    port: None,
+                    path: "/apache/nuttx/pull/15780",
+                    query: None,
+                    fragment: Some(
+                        "issuecomment-2641331180",
+                    ),
+                },
+                issue_url: Some(
+                    Url {
+                        scheme: "https",
+                        cannot_be_a_base: false,
+                        username: "",
+                        password: None,
+                        host: Some(
+                            Domain(
+                                "api.github.com",
+                            ),
+                        ),
+                        port: None,
+                        path: "/repos/apache/nuttx/issues/15780",
+                        query: None,
+                        fragment: None,
+                    },
+                ),
+                body: Some(
+                    "[**\\[Experimental Bot, please feedback here\\]**](https://github.com/search?q=repo%3Aapache%2Fnuttx+13552&type=issues)\n\n\n\nNo, this PR does not fully meet the NuttX requirements.  While it provides a summary and mentions testing, it lacks crucial details. Here's a breakdown of what's missing:\n\n* **Summary:** Lacks detail on *why* this change is necessary. Is it addressing a bug, implementing a requested feature, or something else?  It also doesn't explain *how* the change works beyond a high-level description.  Mentioning specific files changed or code modifications would be helpful.  Issue references are missing.\n\n* **Impact:**  This section is severely incomplete. It only addresses the user impact.  It *must* address all other points: build, hardware, documentation, security, compatibility, and \"anything else\".  Even the user impact could be more detailed; what specific user actions or applications will this affect?\n\n* **Testing:**  This section is woefully inadequate.  It only mentions the target, not the build host.  Critically, it's missing the *actual testing logs* before and after the change. These logs are essential to demonstrating that the change works as intended and doesn't introduce regressions.  Be specific about the tests performed and their results.\n",
+                ),
+                body_text: None,
+                body_html: None,
+                author_association: None,
+                user: Author {
+                    login: "nuttxpr",
+                    id: UserId(
+                        181999181,
+                    ),
+                    node_id: "U_kgDOCtkWTQ",
+                    avatar_url: Url {
+                        scheme: "https",
+                        cannot_be_a_base: false,
+                        username: "",
+                        password: None,
+                        host: Some(
+                            Domain(
+                                "avatars.githubusercontent.com",
+                            ),
+                        ),
+                        port: None,
+                        path: "/u/181999181",
+                        query: Some(
+                            "v=4",
+                        ),
+                        fragment: None,
+                    },
+                    gravatar_id: "",
+                    url: Url {
+                        scheme: "https",
+                        cannot_be_a_base: false,
+                        username: "",
+                        password: None,
+                        host: Some(
+                            Domain(
+                                "api.github.com",
+                            ),
+                        ),
+                        port: None,
+                        path: "/users/nuttxpr",
+                        query: None,
+                        fragment: None,
+                    },
+                    html_url: Url {
+                        scheme: "https",
+                        cannot_be_a_base: false,
+                        username: "",
+                        password: None,
+                        host: Some(
+                            Domain(
+                                "github.com",
+                            ),
+                        ),
+                        port: None,
+                        path: "/nuttxpr",
+                        query: None,
+                        fragment: None,
+                    },
+                    followers_url: Url {
+                        scheme: "https",
+                        cannot_be_a_base: false,
+                        username: "",
+                        password: None,
+                        host: Some(
+                            Domain(
+                                "api.github.com",
+                            ),
+                        ),
+                        port: None,
+                        path: "/users/nuttxpr/followers",
+                        query: None,
+                        fragment: None,
+                    },
+                    following_url: Url {
+                        scheme: "https",
+                        cannot_be_a_base: false,
+                        username: "",
+                        password: None,
+                        host: Some(
+                            Domain(
+                                "api.github.com",
+                            ),
+                        ),
+                        port: None,
+                        path: "/users/nuttxpr/following%7B/other_user%7D",
+                        query: None,
+                        fragment: None,
+                    },
+                    gists_url: Url {
+                        scheme: "https",
+                        cannot_be_a_base: false,
+                        username: "",
+                        password: None,
+                        host: Some(
+                            Domain(
+                                "api.github.com",
+                            ),
+                        ),
+                        port: None,
+                        path: "/users/nuttxpr/gists%7B/gist_id%7D",
+                        query: None,
+                        fragment: None,
+                    },
+                    starred_url: Url {
+                        scheme: "https",
+                        cannot_be_a_base: false,
+                        username: "",
+                        password: None,
+                        host: Some(
+                            Domain(
+                                "api.github.com",
+                            ),
+                        ),
+                        port: None,
+                        path: "/users/nuttxpr/starred%7B/owner%7D%7B/repo%7D",
+                        query: None,
+                        fragment: None,
+                    },
+                    subscriptions_url: Url {
+                        scheme: "https",
+                        cannot_be_a_base: false,
+                        username: "",
+                        password: None,
+                        host: Some(
+                            Domain(
+                                "api.github.com",
+                            ),
+                        ),
+                        port: None,
+                        path: "/users/nuttxpr/subscriptions",
+                        query: None,
+                        fragment: None,
+                    },
+                    organizations_url: Url {
+                        scheme: "https",
+                        cannot_be_a_base: false,
+                        username: "",
+                        password: None,
+                        host: Some(
+                            Domain(
+                                "api.github.com",
+                            ),
+                        ),
+                        port: None,
+                        path: "/users/nuttxpr/orgs",
+                        query: None,
+                        fragment: None,
+                    },
+                    repos_url: Url {
+                        scheme: "https",
+                        cannot_be_a_base: false,
+                        username: "",
+                        password: None,
+                        host: Some(
+                            Domain(
+                                "api.github.com",
+                            ),
+                        ),
+                        port: None,
+                        path: "/users/nuttxpr/repos",
+                        query: None,
+                        fragment: None,
+                    },
+                    events_url: Url {
+                        scheme: "https",
+                        cannot_be_a_base: false,
+                        username: "",
+                        password: None,
+                        host: Some(
+                            Domain(
+                                "api.github.com",
+                            ),
+                        ),
+                        port: None,
+                        path: "/users/nuttxpr/events%7B/privacy%7D",
+                        query: None,
+                        fragment: None,
+                    },
+                    received_events_url: Url {
+                        scheme: "https",
+                        cannot_be_a_base: false,
+                        username: "",
+                        password: None,
+                        host: Some(
+                            Domain(
+                                "api.github.com",
+                            ),
+                        ),
+                        port: None,
+                        path: "/users/nuttxpr/received_events",
+                        query: None,
+                        fragment: None,
+                    },
+                    type: "User",
+                    site_admin: false,
+                    patch_url: None,
+                    email: None,
+                },
+                created_at: 2025-02-06T23:16:27Z,
+                updated_at: Some(
+                    2025-02-06T23:16:27Z,
+                ),
+            },
+            Comment {
+                id: CommentId(
+                    2641336683,
+                ),
+                node_id: "IC_kwDODZiUac6db5lr",
+                url: Url {
+                    scheme: "https",
+                    cannot_be_a_base: false,
+                    username: "",
+                    password: None,
+                    host: Some(
+                        Domain(
+                            "api.github.com",
+                        ),
+                    ),
+                    port: None,
+                    path: "/repos/apache/nuttx/issues/comments/2641336683",
+                    query: None,
+                    fragment: None,
+                },
+                html_url: Url {
+                    scheme: "https",
+                    cannot_be_a_base: false,
+                    username: "",
+                    password: None,
+                    host: Some(
+                        Domain(
+                            "github.com",
+                        ),
+                    ),
+                    port: None,
+                    path: "/apache/nuttx/pull/15780",
+                    query: None,
+                    fragment: Some(
+                        "issuecomment-2641336683",
+                    ),
+                },
+                issue_url: Some(
+                    Url {
+                        scheme: "https",
+                        cannot_be_a_base: false,
+                        username: "",
+                        password: None,
+                        host: Some(
+                            Domain(
+                                "api.github.com",
+                            ),
+                        ),
+                        port: None,
+                        path: "/repos/apache/nuttx/issues/15780",
+                        query: None,
+                        fragment: None,
+                    },
+                ),
+                body: Some(
+                    "@nuttxpr test milkv_duos:nsh",
+                ),
+                body_text: None,
+                body_html: None,
+                author_association: Member,
+                user: Author {
+                    login: "lupyuen",
+                    id: UserId(
+                        9960133,
+                    ),
+                    node_id: "MDQ6VXNlcjk5NjAxMzM=",
+                    avatar_url: Url {
+                        scheme: "https",
+                        cannot_be_a_base: false,
+                        username: "",
+                        password: None,
+                        host: Some(
+                            Domain(
+                                "avatars.githubusercontent.com",
+                            ),
+                        ),
+                        port: None,
+                        path: "/u/9960133",
+                        query: Some(
+                            "v=4",
+                        ),
+                        fragment: None,
+                    },
+                    gravatar_id: "",
+                    url: Url {
+                        scheme: "https",
+                        cannot_be_a_base: false,
+                        username: "",
+                        password: None,
+                        host: Some(
+                            Domain(
+                                "api.github.com",
+                            ),
+                        ),
+                        port: None,
+                        path: "/users/lupyuen",
+                        query: None,
+                        fragment: None,
+                    },
+                    html_url: Url {
+                        scheme: "https",
+                        cannot_be_a_base: false,
+                        username: "",
+                        password: None,
+                        host: Some(
+                            Domain(
+                                "github.com",
+                            ),
+                        ),
+                        port: None,
+                        path: "/lupyuen",
+                        query: None,
+                        fragment: None,
+                    },
+                    followers_url: Url {
+                        scheme: "https",
+                        cannot_be_a_base: false,
+                        username: "",
+                        password: None,
+                        host: Some(
+                            Domain(
+                                "api.github.com",
+                            ),
+                        ),
+                        port: None,
+                        path: "/users/lupyuen/followers",
+                        query: None,
+                        fragment: None,
+                    },
+                    following_url: Url {
+                        scheme: "https",
+                        cannot_be_a_base: false,
+                        username: "",
+                        password: None,
+                        host: Some(
+                            Domain(
+                                "api.github.com",
+                            ),
+                        ),
+                        port: None,
+                        path: "/users/lupyuen/following%7B/other_user%7D",
+                        query: None,
+                        fragment: None,
+                    },
+                    gists_url: Url {
+                        scheme: "https",
+                        cannot_be_a_base: false,
+                        username: "",
+                        password: None,
+                        host: Some(
+                            Domain(
+                                "api.github.com",
+                            ),
+                        ),
+                        port: None,
+                        path: "/users/lupyuen/gists%7B/gist_id%7D",
+                        query: None,
+                        fragment: None,
+                    },
+                    starred_url: Url {
+                        scheme: "https",
+                        cannot_be_a_base: false,
+                        username: "",
+                        password: None,
+                        host: Some(
+                            Domain(
+                                "api.github.com",
+                            ),
+                        ),
+                        port: None,
+                        path: "/users/lupyuen/starred%7B/owner%7D%7B/repo%7D",
+                        query: None,
+                        fragment: None,
+                    },
+                    subscriptions_url: Url {
+                        scheme: "https",
+                        cannot_be_a_base: false,
+                        username: "",
+                        password: None,
+                        host: Some(
+                            Domain(
+                                "api.github.com",
+                            ),
+                        ),
+                        port: None,
+                        path: "/users/lupyuen/subscriptions",
+                        query: None,
+                        fragment: None,
+                    },
+                    organizations_url: Url {
+                        scheme: "https",
+                        cannot_be_a_base: false,
+                        username: "",
+                        password: None,
+                        host: Some(
+                            Domain(
+                                "api.github.com",
+                            ),
+                        ),
+                        port: None,
+                        path: "/users/lupyuen/orgs",
+                        query: None,
+                        fragment: None,
+                    },
+                    repos_url: Url {
+                        scheme: "https",
+                        cannot_be_a_base: false,
+                        username: "",
+                        password: None,
+                        host: Some(
+                            Domain(
+                                "api.github.com",
+                            ),
+                        ),
+                        port: None,
+                        path: "/users/lupyuen/repos",
+                        query: None,
+                        fragment: None,
+                    },
+                    events_url: Url {
+                        scheme: "https",
+                        cannot_be_a_base: false,
+                        username: "",
+                        password: None,
+                        host: Some(
+                            Domain(
+                                "api.github.com",
+                            ),
+                        ),
+                        port: None,
+                        path: "/users/lupyuen/events%7B/privacy%7D",
+                        query: None,
+                        fragment: None,
+                    },
+                    received_events_url: Url {
+                        scheme: "https",
+                        cannot_be_a_base: false,
+                        username: "",
+                        password: None,
+                        host: Some(
+                            Domain(
+                                "api.github.com",
+                            ),
+                        ),
+                        port: None,
+                        path: "/users/lupyuen/received_events",
+                        query: None,
+                        fragment: None,
+                    },
+                    type: "User",
+                    site_admin: false,
+                    patch_url: None,
+                    email: None,
+                },
+                created_at: 2025-02-06T23:21:00Z,
+                updated_at: Some(
+                    2025-02-06T23:21:00Z,
+                ),
+            },
+            Comment {
+                id: CommentId(
+                    2641341832,
+                ),
+                node_id: "IC_kwDODZiUac6db62I",
+                url: Url {
+                    scheme: "https",
+                    cannot_be_a_base: false,
+                    username: "",
+                    password: None,
+                    host: Some(
+                        Domain(
+                            "api.github.com",
+                        ),
+                    ),
+                    port: None,
+                    path: "/repos/apache/nuttx/issues/comments/2641341832",
+                    query: None,
+                    fragment: None,
+                },
+                html_url: Url {
+                    scheme: "https",
+                    cannot_be_a_base: false,
+                    username: "",
+                    password: None,
+                    host: Some(
+                        Domain(
+                            "github.com",
+                        ),
+                    ),
+                    port: None,
+                    path: "/apache/nuttx/pull/15780",
+                    query: None,
+                    fragment: Some(
+                        "issuecomment-2641341832",
+                    ),
+                },
+                issue_url: Some(
+                    Url {
+                        scheme: "https",
+                        cannot_be_a_base: false,
+                        username: "",
+                        password: None,
+                        host: Some(
+                            Domain(
+                                "api.github.com",
+                            ),
+                        ),
+                        port: None,
+                        path: "/repos/apache/nuttx/issues/15780",
+                        query: None,
+                        fragment: None,
+                    },
+                ),
+                body: Some(
+                    "[**\\[Experimental Bot, please feedback here\\]**](https://github.com/search?q=repo%3Aapache%2Fnuttx+15779&type=issues)\n\nBuild and Test Successful (milkv_duos:nsh)\nhttps://gitlab.com/lupyuen/nuttx-build-log/-/snippets/4803699\n```text\n$ git clone https://github.com/acassis/incubator-nuttx nuttx --branch uart_error_report\n$ git clone https://github.com/apache/nuttx-apps apps --branch master\n$ pushd nuttx\n$ git reset --hard HEAD\nHEAD is now at e22f3ab2cc stm32: Add support to TIOCGICOUNT ioctl\n$ popd\n$ pushd apps\n$ git reset --hard HEAD\nHEAD is now at f139e56cd testing/libc/wcstombs: Add testing application for wcstombs\n$ popd\nNuttX Source: https://github.com/apache/nuttx/tree/e22f3ab2cc02eb5d10c3c5b998d8df5bf1a997ea\nNuttX Apps: https://github.com/apache/nuttx-apps/tree/f139e56cd62a30d6edcd7207c7e4cbc6e9b8b7d1\n$ cd nuttx\n$ tools/configure.sh milkv_duos:nsh\n$ make -j\n$ make -j export\n$ pushd ../apps\n$ ./tools/mkimport.sh -z -x ../nuttx/nuttx-export-3.6.1.tar.gz\n$ make -j import\n$ popd\n$ genromfs -f initrd -d ../apps/bin -V NuttXBootVol\n$ head -c 65536 /dev/zero\n$ cat nuttx.bin /tmp/nuttx.pad initrd\n$ scp Image tftpserver:/tftpboot/Image-sg2000\n$ ssh tftpserver ls -l /tftpboot/Image-sg2000\n$ cd /home/luppy/nuttx-build-farm\n$ ssh tftpserver\nOpenSBI v0.9\nnsh> uname -a\nNuttX 3.6.1 e22f3ab2cc Feb  7 2025 07:23:06 risc-v milkv_duos\nnsh> ostest\narena       81000    81000\nordblks         2        3\nmxordblk    7cff8    78ff8\nuordblks     2660     4570\nfordblks    7e9a0    7ca90\nuser_main: Exiting\nostest_main: Exiting with status 0\nnsh> Now running https://github.com/lupyuen/nuttx-build-farm/blob/main/oz64-power.sh off\n----- Power off Oz64\n[]\n```\n",
+                ),
+                body_text: None,
+                body_html: None,
+                author_association: None,
+                user: Author {
+                    login: "nuttxpr",
+                    id: UserId(
+                        181999181,
+                    ),
+                    node_id: "U_kgDOCtkWTQ",
+                    avatar_url: Url {
+                        scheme: "https",
+                        cannot_be_a_base: false,
+                        username: "",
+                        password: None,
+                        host: Some(
+                            Domain(
+                                "avatars.githubusercontent.com",
+                            ),
+                        ),
+                        port: None,
+                        path: "/u/181999181",
+                        query: Some(
+                            "v=4",
+                        ),
+                        fragment: None,
+                    },
+                    gravatar_id: "",
+                    url: Url {
+                        scheme: "https",
+                        cannot_be_a_base: false,
+                        username: "",
+                        password: None,
+                        host: Some(
+                            Domain(
+                                "api.github.com",
+                            ),
+                        ),
+                        port: None,
+                        path: "/users/nuttxpr",
+                        query: None,
+                        fragment: None,
+                    },
+                    html_url: Url {
+                        scheme: "https",
+                        cannot_be_a_base: false,
+                        username: "",
+                        password: None,
+                        host: Some(
+                            Domain(
+                                "github.com",
+                            ),
+                        ),
+                        port: None,
+                        path: "/nuttxpr",
+                        query: None,
+                        fragment: None,
+                    },
+                    followers_url: Url {
+                        scheme: "https",
+                        cannot_be_a_base: false,
+                        username: "",
+                        password: None,
+                        host: Some(
+                            Domain(
+                                "api.github.com",
+                            ),
+                        ),
+                        port: None,
+                        path: "/users/nuttxpr/followers",
+                        query: None,
+                        fragment: None,
+                    },
+                    following_url: Url {
+                        scheme: "https",
+                        cannot_be_a_base: false,
+                        username: "",
+                        password: None,
+                        host: Some(
+                            Domain(
+                                "api.github.com",
+                            ),
+                        ),
+                        port: None,
+                        path: "/users/nuttxpr/following%7B/other_user%7D",
+                        query: None,
+                        fragment: None,
+                    },
+                    gists_url: Url {
+                        scheme: "https",
+                        cannot_be_a_base: false,
+                        username: "",
+                        password: None,
+                        host: Some(
+                            Domain(
+                                "api.github.com",
+                            ),
+                        ),
+                        port: None,
+                        path: "/users/nuttxpr/gists%7B/gist_id%7D",
+                        query: None,
+                        fragment: None,
+                    },
+                    starred_url: Url {
+                        scheme: "https",
+                        cannot_be_a_base: false,
+                        username: "",
+                        password: None,
+                        host: Some(
+                            Domain(
+                                "api.github.com",
+                            ),
+                        ),
+                        port: None,
+                        path: "/users/nuttxpr/starred%7B/owner%7D%7B/repo%7D",
+                        query: None,
+                        fragment: None,
+                    },
+                    subscriptions_url: Url {
+                        scheme: "https",
+                        cannot_be_a_base: false,
+                        username: "",
+                        password: None,
+                        host: Some(
+                            Domain(
+                                "api.github.com",
+                            ),
+                        ),
+                        port: None,
+                        path: "/users/nuttxpr/subscriptions",
+                        query: None,
+                        fragment: None,
+                    },
+                    organizations_url: Url {
+                        scheme: "https",
+                        cannot_be_a_base: false,
+                        username: "",
+                        password: None,
+                        host: Some(
+                            Domain(
+                                "api.github.com",
+                            ),
+                        ),
+                        port: None,
+                        path: "/users/nuttxpr/orgs",
+                        query: None,
+                        fragment: None,
+                    },
+                    repos_url: Url {
+                        scheme: "https",
+                        cannot_be_a_base: false,
+                        username: "",
+                        password: None,
+                        host: Some(
+                            Domain(
+                                "api.github.com",
+                            ),
+                        ),
+                        port: None,
+                        path: "/users/nuttxpr/repos",
+                        query: None,
+                        fragment: None,
+                    },
+                    events_url: Url {
+                        scheme: "https",
+                        cannot_be_a_base: false,
+                        username: "",
+                        password: None,
+                        host: Some(
+                            Domain(
+                                "api.github.com",
+                            ),
+                        ),
+                        port: None,
+                        path: "/users/nuttxpr/events%7B/privacy%7D",
+                        query: None,
+                        fragment: None,
+                    },
+                    received_events_url: Url {
+                        scheme: "https",
+                        cannot_be_a_base: false,
+                        username: "",
+                        password: None,
+                        host: Some(
+                            Domain(
+                                "api.github.com",
+                            ),
+                        ),
+                        port: None,
+                        path: "/users/nuttxpr/received_events",
+                        query: None,
+                        fragment: None,
+                    },
+                    type: "User",
+                    site_admin: false,
+                    patch_url: None,
+                    email: None,
+                },
+                created_at: 2025-02-06T23:25:18Z,
+                updated_at: Some(
+                    2025-02-06T23:25:18Z,
+                ),
+            },
+        ],
+        incomplete_results: None,
+        total_count: None,
+        next: None,
+        prev: None,
+        first: None,
+        last: None,
+    }
