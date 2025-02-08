@@ -201,7 +201,7 @@ async fn get_command(issues: &IssueHandler<'_>, pr_id: u64) -> Result<Option<Vec
     Ok(None)
 }
 
-/// Build and Test the PR. Result the Build-Test Result.
+/// Build and Test the PR. Return the Build-Test Result.
 async fn build_test(pr: &PullRequest, target: &str, script: &str) -> Result<String, Box<dyn std::error::Error>> {
     // Get the Head Ref and Head URL from PR
     // let pr: Value = serde_json::from_str(&body).unwrap();
