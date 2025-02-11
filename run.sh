@@ -3,7 +3,7 @@
 
 set -e  ## Stop on error
 
-## Set the GitHub Token for reading PRs
+## Set the GitHub Token. Should have permission to Post PR Comments.
 ## export GITHUB_TOKEN=...
 . $HOME/github-token.sh
 
