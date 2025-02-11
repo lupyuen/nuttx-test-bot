@@ -187,7 +187,7 @@ async fn get_command(issues: &IssueHandler<'_>, pr_id: u64) -> Result<Option<Vec
 
         // Skip PRs that I have already replied. This will prevent Looping Replies.
         // TODO: Change `nuttxpr` to the GitHub User ID of the Bot
-        if user == "nuttxpr" { warn!("Skipping PR, already executed"); break; }
+        // if user == "nuttxpr" { warn!("Skipping PR, already executed"); break; }
         if !body.starts_with("@nuttxpr") { continue; }
         println!("body={body}");
 
