@@ -2,6 +2,10 @@
 
 # Apache NuttX RTOS: Bot that will Build and Test a Pull Request
 
+Read the article...
+
+- ["Test Bot for Pull Requests ... Tested on Real Hardware (Apache NuttX RTOS / Oz64 SG2000 RISC-V SBC)"](https://lupyuen.org/articles/testbot.html)
+
 We might allow a [__PR Comment__](https://github.com/lupyuen/nuttx-test-bot/blob/main/src/main.rs) to trigger a Build + Test on QEMU. For example, this PR Comment...
 
 ```bash
