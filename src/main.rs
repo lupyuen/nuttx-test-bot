@@ -180,7 +180,7 @@ async fn get_command(issues: &IssueHandler<'_>, pr_id: u64) -> Result<Option<Vec
         .list_comments(pr_id)
         .send()
         .await?;
-    for comment in comments {
+    for comment in comments {  // TODO: Reverse the comments, most recent first
         let user = &comment.user.login;  // "nuttxpr"
         let body = &comment.body.clone().unwrap_or("".into());
         let body = body.trim().replace("  ", " ").to_lowercase();  // "@nuttxpr test milkv_duos:nsh"
