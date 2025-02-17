@@ -81,8 +81,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         println!("pr_id={pr_id}");
 
         // Allow only Specific Repos: apache/nuttx, apache/nuttx-apps
-        if owner != "apache" ||
-            !["nuttx", "nuttx-apps"].contains(&repo.as_str()) {
+        if !["apache", "lupyuen2"].contains(&owner.as_str()) ||
+            !["nuttx", "nuttx-apps", "wip-nuttx", "wip-nuttx-apps"].contains(&repo.as_str()) {
             error!("Disallowed owner/repo: {owner}/{repo}");
             continue;
         }
@@ -166,6 +166,7 @@ async fn process_pr(pulls: &PullRequestHandler<'_>, issues: &IssueHandler<'_>, p
     info!("{:#?}", pr.url);
 
     // Quit after successful test
+    println!("Done!");
     process::exit(0);
 }
 
@@ -326,6 +327,7 @@ async fn extract_log(url: &str) -> Result<Vec<String>, Box<dyn std::error::Error
             line.starts_with("+ rustup --version") ||  // "rustup --version"
             line.starts_with("+ rustc --version") ||  // "rustc --version"
             line.starts_with("+ riscv-none-elf-size") ||  // "riscv-none-elf-size nuttx"
+            line.starts_with("+ aarch64-none-elf-size") ||  // "aarch64-none-elf-size nuttx"
             line.starts_with("+ script=") ||  // "script=qemu-riscv-knsh64"
             line.starts_with("+ wget ") ||  // "wget https://raw.githubusercontent.com/lupyuen/nuttx-riscv64/main/qemu-riscv-knsh64.exp"
             line.starts_with("+ expect ") ||  // "expect ./qemu-riscv-knsh64.exp"
