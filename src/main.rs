@@ -8,7 +8,7 @@
 //!   - Allow only Specific People
 
 use std::{
-    fs, process::Command, thread::sleep, time::Duration
+    fs, process, process::Command, thread::sleep, time::Duration
 };
 use bit_vec::BitVec;
 use clap::Parser;
@@ -94,13 +94,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         // Post the Result and Log Output as PR Comment
         process_pr(&pulls, &issues, pr_id).await?;
 
-        // Wait 1 minute
-        sleep(Duration::from_secs(60));
+        // Wait a while
+        sleep(Duration::from_secs(10));
 
         // TODO: Mark Notification as Read
-        // TODO: Continue to Next Notification
-        break;
-
         // TODO: Allow only Specific People
         // TODO: Post to Mastodon
     }
@@ -168,27 +165,27 @@ async fn process_pr(pulls: &PullRequestHandler<'_>, issues: &IssueHandler<'_>, p
     delete_reactions(issues, pr_id).await?;
     info!("{:#?}", pr.url);
 
-    // Wait 1 minute
-    sleep(Duration::from_secs(60));
-
-    // Return OK
-    Ok(())
+    // Quit after successful test
+    process::exit(0);
 }
 
 /// Get the Last Command from the PR: "@nuttxpr test milkv_duos:nsh" becomes ["test", "milkv_duos:nsh"]
 async fn get_command(issues: &IssueHandler<'_>, pr_id: u64) -> Result<Option<Vec<String>>, Box<dyn std::error::Error>> {
+    // Fetch the PR Comments
     let comments = issues
         .list_comments(pr_id)
         .send()
         .await?;
-    for comment in comments {  // TODO: Reverse the comments, most recent first
+
+    // Process the PR Comments, most recent first
+    for comment in comments.into_iter().rev() {
         let user = &comment.user.login;  // "nuttxpr"
         let body = &comment.body.clone().unwrap_or("".into());
         let body = body.trim().replace("  ", " ").to_lowercase();  // "@nuttxpr test milkv_duos:nsh"
 
         // Skip PRs that I have already replied. This will prevent Looping Replies.
         // TODO: Change `nuttxpr` to the GitHub User ID of the Bot
-        // if user == "nuttxpr" { warn!("Skipping PR, already executed"); break; }
+        if user == "nuttxpr" { warn!("Skipping PR, already executed"); break; }
         if !body.starts_with("@nuttxpr") { continue; }
         println!("body={body}");
 
