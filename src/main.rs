@@ -119,9 +119,10 @@ async fn process_pr(pulls: &PullRequestHandler<'_>, issues: &IssueHandler<'_>, p
     let target = &args[1];
     if cmd != "test" { error!("Unknown command: {cmd}"); return Ok(()); }
     let (script, target) = match target.as_str() {
-        "milkv_duos:nsh" => ("oz64", target),
-        "oz64:nsh"       => ("oz64", &"milkv_duos:nsh".into()),
-        "rv-virt:knsh64" => ("knsh64", target),
+        "milkv_duos:nsh"     => ("oz64", target),
+        "oz64:nsh"           => ("oz64", &"milkv_duos:nsh".into()),
+        "rv-virt:knsh64"     => ("knsh64", target),
+        "qemu-armv8a:netnsh" => ("arm64", target),
         _ => { error!("Unknown target: {target}"); return Ok(()); }
     };
     println!("target={target}");
@@ -416,6 +417,7 @@ async fn create_snippet(content: &str) -> Result<String, Box<dyn std::error::Err
 }
 
 /// Return the Reaction IDs for Rocket and Eyes Reactions, created by the Bot
+/// TODO: Get PR Reactions from the @nuttxpr comment
 async fn get_reactions(issues: &IssueHandler<'_>, pr_id: u64) -> 
     Result<(Option<u64>, Option<u64>), Box<dyn std::error::Error>> {
     // Fetch the PR Reactions
@@ -445,6 +447,7 @@ async fn get_reactions(issues: &IssueHandler<'_>, pr_id: u64) ->
 
 /// Bump up the 2 PR Reactions: 00 > 01 > 10 > 11
 /// Position 0 is the Rocket Reaction, Position 1 is the Eye Reaction
+/// TODO: Set PR Reactions for the @nuttxpr comment
 async fn bump_reactions(issues: &IssueHandler<'_>, pr_id: u64, reactions: (Option<u64>, Option<u64>)) -> 
     Result<(), Box<dyn std::error::Error>> {
     match reactions {
@@ -458,6 +461,7 @@ async fn bump_reactions(issues: &IssueHandler<'_>, pr_id: u64, reactions: (Optio
 }
 
 /// Delete the PR Reactions
+/// TODO: Delete PR Reactions from the @nuttxpr comment
 async fn delete_reactions(issues: &IssueHandler<'_>, pr_id: u64) -> 
     Result<(), Box<dyn std::error::Error>> {
     let reactions = get_reactions(issues, pr_id).await?;
@@ -471,6 +475,7 @@ async fn delete_reactions(issues: &IssueHandler<'_>, pr_id: u64) ->
 }
 
 /// Create the PR Reaction
+/// TODO: Create PR Reaction for the @nuttxpr comment
 async fn create_reaction(issues: &IssueHandler<'_>, pr_id: u64, content: ReactionContent) -> 
     Result<(), Box<dyn std::error::Error>> {
     issues.create_reaction(pr_id, content)
@@ -479,6 +484,7 @@ async fn create_reaction(issues: &IssueHandler<'_>, pr_id: u64, content: Reactio
 }
 
 /// Delete the PR Reaction
+/// TODO: Delete PR Reaction from the @nuttxpr comment
 async fn delete_reaction(issues: &IssueHandler<'_>, pr_id: u64, reaction_id: u64) -> 
     Result<(), Box<dyn std::error::Error>> {
     issues.delete_reaction(pr_id, reaction_id)
