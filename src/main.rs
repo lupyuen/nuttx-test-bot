@@ -324,6 +324,7 @@ async fn extract_log(url: &str) -> Result<Vec<String>, Box<dyn std::error::Error
             line.starts_with("+ mkdir /tmp/") ||  // "mkdir /tmp/build-test-knsh64"
             line.starts_with("+ cd /tmp/") ||  // "cd /tmp/build-test-knsh64"
             line.starts_with("+ riscv-none-elf-gcc -v") ||  // "riscv-none-elf-gcc -v"
+            line.starts_with("+ aarch64-none-elf-gcc -v") ||  // "aarch64-none-elf-gcc -v"
             line.starts_with("+ rustup --version") ||  // "rustup --version"
             line.starts_with("+ rustc --version") ||  // "rustc --version"
             line.starts_with("+ riscv-none-elf-size") ||  // "riscv-none-elf-size nuttx"
