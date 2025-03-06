@@ -273,6 +273,10 @@ async fn build_test(pr: &PullRequest, target: &str, script: &str) -> Result<Stri
     println!("result={result}");
 
     // Return the Result
+    if !status.success() {
+        error!("PLEASE VERIFY FAILURE");
+        sleep(Duration::from_secs(60));    
+    }
     Ok(result)
 }
 
