@@ -32,6 +32,11 @@ See [run.sh](run.sh)...
 
 set -e  ## Stop on error
 
+## Install QEMU Emulators
+sudo apt install \
+  qemu-system-riscv64 \
+  qemu-system-aarch64
+
 ## Set the GitHub Token. Should have permission to Post PR Comments.
 ## export GITHUB_TOKEN=...
 . $HOME/github-token.sh
