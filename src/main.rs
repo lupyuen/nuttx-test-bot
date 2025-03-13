@@ -116,10 +116,11 @@ async fn process_pr(pulls: &PullRequestHandler<'_>, issues: &IssueHandler<'_>, p
     let target = &args[1];
     if cmd != "test" { error!("Unknown command: {cmd}"); return Ok(()); }
     let (script, target) = match target.as_str() {
+        "avaota-a1:nsh"      => ("avaota", target),
         "milkv_duos:nsh"     => ("oz64", target),
         "oz64:nsh"           => ("oz64", &"milkv_duos:nsh".into()),
-        "rv-virt:knsh64"     => ("knsh64", target),
         "qemu-armv8a:netnsh" => ("arm64", target),
+        "rv-virt:knsh64"     => ("knsh64", target),
         _ => { error!("Unknown target: {target}"); return Ok(()); }
     };
     println!("target={target}");
@@ -320,6 +321,7 @@ async fn extract_log(url: &str) -> Result<Vec<String>, Box<dyn std::error::Error
             line.starts_with("+ nuttx_ref") || // "nuttx_ref=test-bot" ////
             line.starts_with("+ apps_ref") || // "apps_ref=master" ////
             line.starts_with("+ export ") || // "export OZ64_SERVER=tftpserver" ////
+            line.starts_with("+ AVAOTA_SERVER") || // "AVAOTA_SERVER=thinkcentre" ////
             line.starts_with("+ OZ64_SERVER") || // "OZ64_SERVER=tftpserver" ////
             line.starts_with("+ script_dir") || // "script_dir=/home/luppy/nuttx-build-farm" ////
             line.starts_with("+ neofetch") || // "neofetch"
@@ -336,6 +338,9 @@ async fn extract_log(url: &str) -> Result<Vec<String>, Box<dyn std::error::Error
             line.starts_with("+ script=") ||  // "script=qemu-riscv-knsh64"
             line.starts_with("+ wget ") ||  // "wget https://raw.githubusercontent.com/lupyuen/nuttx-riscv64/main/qemu-riscv-knsh64.exp"
             line.starts_with("+ expect ") ||  // "expect ./qemu-riscv-knsh64.exp"
+            line.starts_with("+ whoami") ||  // "whoami"
+            line.starts_with("+ sleep") ||  // "sleep 5"
+            line.contains("ls -l") ||  // "ssh thinkcentre ls -l /tmp/Image"
             false {
             continue;
         } else if

@@ -8,6 +8,8 @@ Read the article...
 
 - ["QEMU Test Bot for Pull Requests: Beware of Semihosting Breakout (Apache NuttX RTOS)"](https://lupyuen.org/articles/testbot2.html)
 
+- ["PR Test Bot for PinePhone (Apache NuttX RTOS)"](https://lupyuen.org/articles/testbot3.html)
+
 We might allow a [__PR Comment__](https://github.com/lupyuen/nuttx-test-bot/blob/main/src/main.rs) to trigger a Build + Test on QEMU. For example, this PR Comment...
 
 ```bash
