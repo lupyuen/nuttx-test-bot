@@ -10,6 +10,9 @@ Read the article...
 
 - ["PR Test Bot for PinePhone (Apache NuttX RTOS)"](https://lupyuen.org/articles/testbot3.html)
 
+- ["Porting Apache NuttX RTOS to Avaota-A1 SBC (Allwinner A527 SoC)"](https://lupyuen.org/articles/avaota.html)
+
+
 We might allow a [__PR Comment__](https://github.com/lupyuen/nuttx-test-bot/blob/main/src/main.rs) to trigger a Build + Test on QEMU. For example, this PR Comment...
 
 ```bash
@@ -22,7 +25,21 @@ Will trigger our [__Test Bot__](https://github.com/lupyuen/nuttx-test-bot/blob/m
 @nuttxpr test milkv_duos:nsh
 ```
 
-Super helpful for __Testing Pull Requests__ before Merging. But might have [__Security Implications__](https://github.com/apache/nuttx/issues/15731#issuecomment-2628647886) 🤔
+Here are commands for PR Test Bot:
+
+```bash
+## For Avaota-A1 Arm64 SBC (Allwinner A537)
+@nuttxpr test avaota-a1:nsh
+
+## For Milk-V Duo S 64-bit RISC-V SBC (Sophgo SG2000)
+@nuttxpr test milkv_duos:nsh
+
+## For QEMU Arm64 (Flat Build) and RISC-V 64-bit (Kernel Build)
+@nuttxpr test qemu-armv8a:netnsh
+@nuttxpr test rv-virt:knsh64
+```
+
+These commands will trigger an Email Alert to me. Please give me 12 Hours to review the PR [(making sure there isn't malicious code)](https://github.com/apache/nuttx/issues/15731#issuecomment-2628647886) before I start the PR Test Bot. The results shall be posted as a PR Comment.
 
 # How To Run
 
